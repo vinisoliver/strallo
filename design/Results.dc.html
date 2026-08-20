@@ -1,0 +1,77 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; scrollbar-width:none; }
+    *::-webkit-scrollbar { display:none; }
+    body { margin:0; font-family:'Nunito',system-ui,sans-serif; color:#f1f7fb; -webkit-font-smoothing:antialiased; }
+    .phone { width:390px; height:844px; background:#131f24; position:relative; overflow:hidden; display:flex; flex-direction:column; }
+    .display { font-family:'Baloo 2','Nunito',system-ui,sans-serif; }
+  </style>
+</helmet>
+
+<div class="phone">
+
+  <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:0 26px;">
+
+    <!-- Celebration image -->
+    <svg width="180" height="150" viewBox="0 0 180 150" fill="none">
+      <path d="M40 20l6 14 15 2-11 10 3 15-13-8-13 8 3-15-11-10 15-2 6-14z" fill="#ffe27a"/>
+      <path d="M150 30l4 9 10 1-7 7 2 10-9-5-9 5 2-10-7-7 10-1 4-9z" fill="#ffc800"/>
+      <circle cx="90" cy="88" r="46" fill="#3a3413" stroke="#ffc800" stroke-width="4"/>
+      <path d="M112 44l3 7 8 1-6 5 2 8-7-4-7 4 2-8-6-5 8-1 3-7z" fill="#ffe27a"/>
+      <path d="M70 90l14 14 26-28" stroke="#ffc800" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+
+    <h1 class="display" style="margin:24px 0 6px 0; font-size:34px; font-weight:800; color:#ffc800;">Muito bem!</h1>
+    <p style="margin:0; font-size:16px; font-weight:600; color:#7d929c;">Você mandou muito bem nessa rodada</p>
+
+    <!-- Result boxes -->
+    <div style="display:flex; gap:14px; width:100%; margin-top:30px;">
+      <div style="flex:1; border:2px solid #1c556b; border-bottom-width:4px; border-radius:20px; overflow:hidden; background:#1f2c33;">
+        <div style="background:#4bc0f0; padding:7px; text-align:center; font-size:12px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:#0c2731;">Tempo</div>
+        <div style="padding:16px; text-align:center;">
+          <div style="font-family:'Baloo 2',sans-serif; font-size:30px; font-weight:800; color:#8fd9f2;">1:00</div>
+          <div style="font-size:13px; font-weight:700; color:#7d929c;">minuto</div>
+        </div>
+      </div>
+      <div style="flex:1; border:2px solid #4a6b1f; border-bottom-width:4px; border-radius:20px; overflow:hidden; background:#1f2c33;">
+        <div style="background:#7ad13a; padding:7px; text-align:center; font-size:12px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:#16300a;">Acertos</div>
+        <div style="padding:16px; text-align:center;">
+          <div style="font-family:'Baloo 2',sans-serif; font-size:30px; font-weight:800; color:#9fe063;">14 / 16</div>
+          <div style="font-size:13px; font-weight:700; color:#ff6b6b;">2 erros</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Actions -->
+  <div style="padding:12px 18px 30px 18px; display:flex; gap:12px;">
+    <button style="width:64px; height:58px; border-radius:16px; background:#1f2c33; border:2px solid #37464f; border-bottom-width:4px; display:flex; align-items:center; justify-content:center; cursor:pointer; flex:none;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3.2" stroke="#7d929c" stroke-width="2.2"/><path d="M12 2.5v3M12 18.5v3M21.5 12h-3M5.5 12h-3M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1M18.7 18.7l-2.1-2.1M7.4 7.4L5.3 5.3" stroke="#7d929c" stroke-width="2.2" stroke-linecap="round"/></svg>
+    </button>
+    <button style="flex:1; height:58px; border:none; border-radius:16px; background:#ffc800; box-shadow:0 4px 0 #c99a00; color:#2b2317; font-family:'Nunito',sans-serif; font-weight:800; font-size:17px; letter-spacing:.8px; text-transform:uppercase; display:flex; align-items:center; justify-content:center; gap:10px; cursor:pointer;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 12a8 8 0 1 1 2.3 5.6" stroke="#2b2317" stroke-width="2.6" stroke-linecap="round"/><path d="M4 20v-4h4" stroke="#2b2317" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Recomeçar
+    </button>
+  </div>
+
+</div>
+
+<script data-dc-script data-props='{}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</x-dc>
+</body>
+</html>

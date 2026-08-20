@@ -1,0 +1,127 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; scrollbar-width:none; }
+    *::-webkit-scrollbar { display:none; }
+    body { margin:0; font-family:'Nunito',system-ui,sans-serif; color:#f1f7fb; -webkit-font-smoothing:antialiased; }
+    .board { width:860px; height:560px; background:#131f24; position:relative; overflow:hidden; padding:40px 44px; }
+    .display { font-family:'Baloo 2','Nunito',system-ui,sans-serif; }
+    .cap { font-size:12px; font-weight:800; letter-spacing:1.6px; text-transform:uppercase; color:#556670; }
+    .tile { background:#101b20; border:1.5px solid #2c3a43; display:flex; align-items:center; justify-content:center; box-shadow:0 12px 26px rgba(0,0,0,.5); }
+    .b { fill:none; stroke:#ffc800; stroke-linecap:round; stroke-linejoin:round; }
+  </style>
+</helmet>
+
+<div class="board">
+
+  <div style="display:flex; gap:40px; height:100%;">
+
+    <!-- App icon (st fino) -->
+    <div style="display:flex; flex-direction:column; align-items:center; gap:16px;">
+      <div class="cap">Ícone do app</div>
+      <div class="tile" style="width:176px; height:176px; border-radius:50px;">
+        <svg width="140" height="140" viewBox="16 10 82 82">
+          <path class="b" d="M58 40 C49 33 33 35 33 46 C33 55 52 53 55 63 C57 72 42 75 30 68" stroke-width="10"/>
+          <path class="b" d="M70 24 C68 44 67 60 71 74 C73 80 79 79 83 75" stroke-width="10"/>
+          <path class="b" d="M54 43 C63 41 77 41 86 44" stroke-width="8.5"/>
+        </svg>
+      </div>
+      <div class="cap" style="color:#7d929c;">"st" de strallo</div>
+    </div>
+
+    <!-- Divider -->
+    <div style="width:2px; background:#22303a; align-self:stretch;"></div>
+
+    <!-- Right column -->
+    <div style="flex:1; display:flex; flex-direction:column; justify-content:space-between; padding:4px 0;">
+
+      <!-- Logotype dark (wordmark strallo) -->
+      <div>
+        <div class="cap">Logotipo</div>
+        <div style="margin-top:14px;">
+          <svg width="300" height="103" viewBox="20 12 232 80">
+            <g class="b">
+              <path d="M58 40 C49 33 33 35 33 46 C33 55 52 53 55 63 C57 72 42 75 30 68" stroke-width="10"/>
+              <path d="M70 24 C68 44 67 60 71 74 C73 80 79 79 83 75" stroke-width="10"/>
+              <path d="M54 43 C63 41 77 41 86 44" stroke-width="8.5"/>
+              <path d="M96 44 C95 55 95 64 97 74" stroke-width="10"/>
+              <path d="M96 49 C100 43 108 42 114 47" stroke-width="9"/>
+              <path d="M144 45 C143 55 143 64 146 74" stroke-width="10"/>
+              <path d="M144 50 C136 45 124 49 124 58 C124 67 135 71 145 66" stroke-width="10"/>
+              <path d="M156 24 C155 44 154 62 158 74 C160 80 166 79 170 75" stroke-width="10"/>
+              <path d="M180 24 C179 44 178 62 182 74 C184 80 190 79 194 75" stroke-width="10"/>
+              <path d="M213 44 C222 44 228 51 227 58 C226 66 219 71 211 70 C203 69 198 63 198 56 C199 49 205 44 213 44" stroke-width="10"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Light mono + heavier alt -->
+      <div style="display:flex; gap:20px; align-items:flex-end;">
+        <div>
+          <div class="cap">Fundo claro (mono)</div>
+          <div style="margin-top:12px; background:#f4f6f7; border-radius:16px; padding:16px 24px; width:fit-content;">
+            <svg width="210" height="72" viewBox="20 12 232 80">
+              <g style="fill:none; stroke:#131f24; stroke-linecap:round; stroke-linejoin:round;">
+                <path d="M58 40 C49 33 33 35 33 46 C33 55 52 53 55 63 C57 72 42 75 30 68" stroke-width="10"/>
+                <path d="M70 24 C68 44 67 60 71 74 C73 80 79 79 83 75" stroke-width="10"/>
+                <path d="M54 43 C63 41 77 41 86 44" stroke-width="8.5"/>
+                <path d="M96 44 C95 55 95 64 97 74" stroke-width="10"/>
+                <path d="M96 49 C100 43 108 42 114 47" stroke-width="9"/>
+                <path d="M144 45 C143 55 143 64 146 74" stroke-width="10"/>
+                <path d="M144 50 C136 45 124 49 124 58 C124 67 135 71 145 66" stroke-width="10"/>
+                <path d="M156 24 C155 44 154 62 158 74 C160 80 166 79 170 75" stroke-width="10"/>
+                <path d="M180 24 C179 44 178 62 182 74 C184 80 190 79 194 75" stroke-width="10"/>
+                <path d="M213 44 C222 44 228 51 227 58 C226 66 219 71 211 70 C203 69 198 63 198 56 C199 49 205 44 213 44" stroke-width="10"/>
+              </g>
+            </svg>
+          </div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+          <div class="cap">Peso maior</div>
+          <div class="tile" style="width:60px; height:60px; border-radius:16px;">
+            <svg width="48" height="48" viewBox="12 8 80 84"><g class="b"><path d="M57 42 C48 36 35 38 35 47 C35 55 51 54 54 62 C56 70 44 73 33 68" stroke-width="13"/><path d="M69 26 C67 44 66 60 70 73 C72 79 78 78 82 74" stroke-width="13"/><path d="M53 45 C62 43 76 43 85 46" stroke-width="10.5"/></g></svg>
+          </div>
+          <span style="font-size:11px; font-weight:700; color:#7d929c;">alternativa</span>
+        </div>
+      </div>
+
+      <!-- Sizes -->
+      <div>
+        <div class="cap">Tamanhos</div>
+        <div style="display:flex; align-items:flex-end; gap:16px; margin-top:10px;">
+          <div class="tile" style="width:56px; height:56px; border-radius:16px;">
+            <svg width="46" height="46" viewBox="16 10 82 82"><g class="b"><path d="M58 40 C49 33 33 35 33 46 C33 55 52 53 55 63 C57 72 42 75 30 68" stroke-width="10"/><path d="M70 24 C68 44 67 60 71 74 C73 80 79 79 83 75" stroke-width="10"/><path d="M54 43 C63 41 77 41 86 44" stroke-width="8.5"/></g></svg>
+          </div>
+          <div class="tile" style="width:40px; height:40px; border-radius:12px;">
+            <svg width="33" height="33" viewBox="16 10 82 82"><g class="b"><path d="M58 40 C49 33 33 35 33 46 C33 55 52 53 55 63 C57 72 42 75 30 68" stroke-width="10"/><path d="M70 24 C68 44 67 60 71 74 C73 80 79 79 83 75" stroke-width="10"/><path d="M54 43 C63 41 77 41 86 44" stroke-width="8.5"/></g></svg>
+          </div>
+          <div class="tile" style="width:28px; height:28px; border-radius:9px;">
+            <svg width="23" height="23" viewBox="16 10 82 82"><g class="b"><path d="M58 40 C49 33 33 35 33 46 C33 55 52 53 55 63 C57 72 42 75 30 68" stroke-width="10"/><path d="M70 24 C68 44 67 60 71 74 C73 80 79 79 83 75" stroke-width="10"/><path d="M54 43 C63 41 77 41 86 44" stroke-width="8.5"/></g></svg>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script data-dc-script data-props='{}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</x-dc>
+</body>
+</html>

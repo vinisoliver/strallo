@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; scrollbar-width:none; }
+    *::-webkit-scrollbar { display:none; }
+    body { margin:0; font-family:'Nunito',system-ui,sans-serif; color:#f1f7fb; -webkit-font-smoothing:antialiased; }
+    .phone { width:390px; height:844px; background:#131f24; position:relative; overflow:hidden; display:flex; flex-direction:column; }
+    .display { font-family:'Baloo 2','Nunito',system-ui,sans-serif; }
+  </style>
+</helmet>
+
+<div class="phone">
+
+  <!-- Top HUD -->
+  <div style="display:flex; align-items:center; gap:12px; padding:34px 18px 8px 18px;">
+    <button style="width:38px; height:38px; border-radius:11px; background:#1f2c33; border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; flex:none;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="#7d929c" stroke-width="2.6" stroke-linecap="round"/></svg>
+    </button>
+    <!-- Progress bar -->
+    <div style="flex:1; height:16px; border-radius:10px; background:#243139; overflow:hidden;">
+      <div style="width:45%; height:100%; border-radius:10px; background:#ffc800;"></div>
+    </div>
+  </div>
+
+  <!-- Counters -->
+  <div style="display:flex; gap:12px; padding:12px 18px 0 18px;">
+    <div style="flex:1; display:flex; align-items:center; justify-content:center; gap:8px; background:rgba(75,192,240,.14); border-radius:14px; padding:10px;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="13" r="8" stroke="#4bc0f0" stroke-width="2.4"/><path d="M12 9v4l2.5 2" stroke="#4bc0f0" stroke-width="2.4" stroke-linecap="round"/></svg>
+      <span style="font-family:'Baloo 2',sans-serif; font-size:19px; font-weight:800; color:#8fd9f2;">0:34</span>
+    </div>
+    <div style="flex:1; display:flex; align-items:center; justify-content:center; gap:8px; background:rgba(122,209,58,.14); border-radius:14px; padding:10px;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7" stroke="#7ad13a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span style="font-family:'Baloo 2',sans-serif; font-size:19px; font-weight:800; color:#9fe063;">8 acertos</span>
+    </div>
+  </div>
+
+  <!-- Flashcard with reference -->
+  <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:0 24px;">
+    <div style="font-size:13px; font-weight:800; letter-spacing:1.4px; text-transform:uppercase; color:#556670; margin-bottom:18px;">Qual o significado?</div>
+    <div style="width:100%; height:230px; border:2px solid #37464f; border-bottom-width:5px; border-radius:24px; background:#1f2c33; display:flex; align-items:center; justify-content:center; position:relative;">
+      <span style="position:absolute; top:16px; left:18px; font-size:13px; font-weight:800; color:#ffc800;">C</span>
+      <span class="display" style="font-size:46px; font-weight:800; color:#f1f7fb;">Courage</span>
+    </div>
+  </div>
+
+  <!-- Answer input -->
+  <div style="padding:0 18px 26px 18px;">
+    <div style="display:flex; align-items:center; gap:10px; border:2px solid #ffc800; border-radius:18px; padding:16px 18px; margin-bottom:14px; background:#1c2a31;">
+      <span style="flex:1; font-size:18px; font-weight:700; color:#f1f7fb;">Coragem</span>
+      <div style="width:2px; height:24px; background:#ffc800;"></div>
+    </div>
+    <button style="width:100%; height:56px; border:none; border-radius:16px; background:#ffc800; box-shadow:0 4px 0 #c99a00; color:#2b2317; font-family:'Nunito',sans-serif; font-weight:800; font-size:17px; letter-spacing:.8px; text-transform:uppercase; cursor:pointer;">Responder</button>
+  </div>
+
+</div>
+
+<script data-dc-script data-props='{}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</x-dc>
+</body>
+</html>

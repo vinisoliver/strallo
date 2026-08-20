@@ -1,0 +1,83 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; scrollbar-width:none; }
+    *::-webkit-scrollbar { display:none; }
+    body { margin:0; font-family:'Nunito',system-ui,sans-serif; color:#f1f7fb; -webkit-font-smoothing:antialiased; }
+    .phone { width:390px; height:844px; background:#131f24; position:relative; overflow:hidden; display:flex; flex-direction:column; }
+    .display { font-family:'Baloo 2','Nunito',system-ui,sans-serif; }
+  </style>
+</helmet>
+
+<div class="phone">
+
+  <!-- Close -->
+  <div style="padding:34px 18px 0 18px;">
+    <button style="width:42px; height:42px; border-radius:12px; background:#1f2c33; border:none; display:flex; align-items:center; justify-content:center; cursor:pointer;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="#7d929c" stroke-width="2.6" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+
+  <!-- Small image -->
+  <div style="display:flex; justify-content:center; margin-top:30px;">
+    <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+      <rect x="18" y="30" width="70" height="52" rx="12" fill="#3a3413" stroke="#ffc800" stroke-width="3"/>
+      <rect x="34" y="42" width="70" height="52" rx="12" fill="#1f2c33" stroke="#ffc800" stroke-width="3"/>
+      <path d="M50 66h38M50 76h24" stroke="#8a7415" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="93" cy="34" r="15" fill="#ffc800"/>
+      <path d="M88 34l4 4 7-8" stroke="#2b2317" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+
+  <!-- Big question -->
+  <div style="padding:26px 28px 0 28px; text-align:center;">
+    <h1 class="display" style="margin:0; font-size:32px; font-weight:800; color:#f1f7fb; line-height:1.15;">Como você quer<br>jogar?</h1>
+    <p style="margin:12px 0 0 0; font-size:16px; font-weight:600; color:#7d929c;">Escolha um modo para começar</p>
+  </div>
+
+  <!-- Mode options -->
+  <div style="flex:1; display:flex; flex-direction:column; justify-content:center; gap:16px; padding:0 24px;">
+
+    <button style="display:flex; align-items:center; gap:16px; text-align:left; background:#1f2c33; border:2px solid #37464f; border-bottom-width:4px; border-radius:20px; padding:18px 18px; cursor:pointer;">
+      <div style="width:56px; height:56px; border-radius:16px; background:rgba(75,192,240,.16); display:flex; align-items:center; justify-content:center; flex:none;">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="13" r="8" stroke="#4bc0f0" stroke-width="2.4"/><path d="M12 9v4l2.5 2M9 3h6" stroke="#4bc0f0" stroke-width="2.4" stroke-linecap="round"/></svg>
+      </div>
+      <div style="flex:1;">
+        <div style="font-family:'Baloo 2',sans-serif; font-size:20px; font-weight:800; color:#f1f7fb;">Por tempo</div>
+        <div style="font-size:14px; font-weight:600; color:#7d929c;">Acerte o máximo antes do relógio zerar</div>
+      </div>
+    </button>
+
+    <button style="display:flex; align-items:center; gap:16px; text-align:left; background:#1f2c33; border:2px solid #37464f; border-bottom-width:4px; border-radius:20px; padding:18px 18px; cursor:pointer;">
+      <div style="width:56px; height:56px; border-radius:16px; background:rgba(192,132,252,.16); display:flex; align-items:center; justify-content:center; flex:none;">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><path d="M5 6h14M5 12h14M5 18h9" stroke="#c084fc" stroke-width="2.6" stroke-linecap="round"/></svg>
+      </div>
+      <div style="flex:1;">
+        <div style="font-family:'Baloo 2',sans-serif; font-size:20px; font-weight:800; color:#f1f7fb;">Por quantidade</div>
+        <div style="font-size:14px; font-weight:600; color:#7d929c;">Responda um número fixo de cards</div>
+      </div>
+    </button>
+
+  </div>
+
+  <div style="height:34px;"></div>
+
+</div>
+
+<script data-dc-script data-props='{}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</x-dc>
+</body>
+</html>

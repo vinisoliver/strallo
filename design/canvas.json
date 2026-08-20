@@ -1,0 +1,25 @@
+{
+  "pages": [
+    { "id": "marca", "name": "Marca" },
+    { "id": "inicio", "name": "Fluxo Início" },
+    { "id": "jogo", "name": "Fluxo Jogo" }
+  ],
+  "artboards": [
+    { "file": "Logo.dc.html", "page": "marca", "x": 0, "y": 0, "w": 820, "h": 520, "title": "Lampi · Marca" },
+
+    { "file": "Main.dc.html",     "page": "inicio", "x": 0,    "y": 0, "w": 390, "h": 844, "title": "1 · Grade de cards" },
+    { "file": "CardMenu.dc.html", "page": "inicio", "x": 470,  "y": 0, "w": 390, "h": 844, "title": "2 · Segurar 2s (menu)" },
+    { "file": "EditCard.dc.html", "page": "inicio", "x": 940,  "y": 0, "w": 390, "h": 844, "title": "3 · Editar card" },
+
+    { "file": "GameSelect.dc.html", "page": "jogo", "x": 0,    "y": 0, "w": 390, "h": 844, "title": "1 · Escolher modo" },
+    { "file": "GameConfig.dc.html", "page": "jogo", "x": 470,  "y": 0, "w": 390, "h": 844, "title": "2 · Configurar" },
+    { "file": "Playing.dc.html",    "page": "jogo", "x": 940,  "y": 0, "w": 390, "h": 844, "title": "3 · Jogando" },
+    { "file": "Results.dc.html",    "page": "jogo", "x": 1410, "y": 0, "w": 390, "h": 844, "title": "4 · Resultado" }
+  ],
+  "annotations": [
+    { "id": "nota-marca", "page": "marca", "x": 0, "y": -96, "w": 560, "text": "MARCA · STRALLO\nLogotipo: a palavra 'strallo' desenhada à mão, toda amarela, começando pelo 'st'. O 'st' sozinho serve de símbolo/ícone. Versão mono para fundo claro." },
+    { "id": "nota-inicio", "page": "inicio", "x": 0, "y": -96, "w": 480, "text": "FLUXO INÍCIO\nLogotipo no topo, contagem de cards à direita, busca, rail de alfabeto com indicador e navbar (jogar + ajuda). Segure um card por 2s para editar / excluir." },
+    { "id": "nota-jogo", "page": "jogo", "x": 0, "y": -96, "w": 480, "text": "FLUXO JOGO\nEscolha o modo (sobe e escurece), configure tempo (5 em 5s) ou quantidade (1 em 1), jogue digitando o significado e veja o resultado." }
+  ],
+  "launch": { "view": "canvas", "page": "marca" }
+}
