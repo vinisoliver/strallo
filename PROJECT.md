@@ -29,11 +29,11 @@ acima** (`url`) para manter o mesmo link.
 
 ## Status
 
-- **Fluxo Início — FINALIZADO**: tela inicial, seleção (menu do card) e
-  edição/adição de card.
-- **Fluxo Jogo — desenhado (mockups), ainda não finalizado**: escolher
-  modo, configurar, jogar, resultado.
-- Próximo passo: **produzir o código** do app.
+- **Fluxo Início — FINALIZADO** (design + código): tela inicial, seleção
+  (menu do card) e edição/adição de card.
+- **Fluxo Jogo — desenhado (mockups), ainda não implementado**: escolher
+  modo, configurar, jogar, resultado. O botão **PRATICAR** existe na tela
+  inicial mas ainda não navega para lugar nenhum.
 
 ## Design system
 
@@ -116,10 +116,42 @@ escolhido sobe e escurece; configurar (tempo de 5 em 5s, quantidade de
 ("Muito bem!", caixas de tempo e acertos/erros, recomeçar +
 engrenagem).
 
-## Como continuar (código)
+## Código
 
-Este é um novo projeto separado do `mimilon-site-oficial`. Abra uma nova
-sessão do Claude Code **nesta pasta** (`C:\dev\strallo`) e comece a
-implementação. Stack ainda não definida — decidir no início do build
-(sugestões: mobile/web — React/React Native/Flutter — com backend para a
-verificação de significado por IA).
+**Stack**: Expo (SDK 57) + React Native + TypeScript, `expo-router` para
+navegação, `expo-sqlite` para armazenamento local e `react-native-svg`
+para a marca e os ícones. Gerenciador de pacotes: **yarn**.
+
+```bash
+yarn start
+```
+
+**Gerar o APK** (build na nuvem, perfil `preview` do [`eas.json`](eas.json)):
+
+```bash
+npx --yes --package eas-cli eas build --platform android --profile preview
+```
+
+O `--package` é necessário porque o binário do pacote `eas-cli` se chama
+`eas` — sem ele o npx falha com "could not determine executable to run".
+
+**Ícones**: `yarn icons` redesenha `assets/` a partir das paths da marca
+(ver [`scripts/generate-icons.mjs`](scripts/generate-icons.mjs)).
+
+Estrutura:
+
+- `app/_layout.tsx` — fontes (Nunito / Baloo 2), `SQLiteProvider`, Stack.
+- `app/index.tsx` — tela inicial: grade, busca, rail alfabético, menu de
+  seleção e navbar.
+- `app/card/[id].tsx` — adicionar (`/card/new`) e editar (`/card/<id>`).
+- `src/theme.ts` — tokens do design (cores, raios, medidas). **Fonte da
+  verdade do visual no código** — mudou a canvas, muda aqui primeiro.
+- `src/db/` — migrações (`index.ts`) e CRUD (`cards.ts`).
+- `src/utils/text.ts` — normalização (sem acento/minúsculas) e a letra de
+  agrupamento; `sort_key` no banco guarda a forma normalizada.
+- `src/utils/grid.ts` — monta a grade, decide qual cartão exibe a letra e
+  resolve para onde o rail rola.
+- `src/components/` — componentes da UI.
+
+O que ainda **não** existe: o fluxo de jogo, a verificação de significado
+por IA (o design prevê respostas aproximadas) e qualquer backend.
