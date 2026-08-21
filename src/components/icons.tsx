@@ -183,3 +183,120 @@ export function StarIcon({ size = 15, color = colors.primary }: IconProps) {
     </Svg>
   );
 }
+
+/** Fecha o fluxo de prática. */
+export function CloseIcon({ size = 22, color = colors.textSecondary }: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M6 6l12 12M18 6L6 18"
+        stroke={color}
+        strokeWidth={2.6}
+        strokeLinecap="round"
+      />
+    </Svg>
+  );
+}
+
+/** Modo por tempo. */
+export function TimeIcon({ size = 30, color = '#4bc0f0' }: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Circle cx={12} cy={13} r={8} stroke={color} strokeWidth={2.4} />
+      <Path
+        d="M12 9v4l2.5 2M9 3h6"
+        stroke={color}
+        strokeWidth={2.4}
+        strokeLinecap="round"
+      />
+    </Svg>
+  );
+}
+
+/** Modo por quantidade. */
+export function CountIcon({ size = 30, color = '#c084fc' }: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Rect
+        x={3.5}
+        y={6.5}
+        width={12}
+        height={14}
+        rx={2.6}
+        stroke={color}
+        strokeWidth={2.1}
+      />
+      <Path
+        d="M8 3.5h10a2.5 2.5 0 0 1 2.5 2.5v11"
+        stroke={color}
+        strokeWidth={2.1}
+        strokeLinecap="round"
+      />
+    </Svg>
+  );
+}
+
+/** Menos e mais dos ajustes. */
+export function MinusIcon({ size = 26, color = colors.textSecondary }: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path d="M5 12h14" stroke={color} strokeWidth={3.2} strokeLinecap="round" />
+    </Svg>
+  );
+}
+
+export function PlusStepIcon({ size = 26, color = '#0c2731' }: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M12 5v14M5 12h14"
+        stroke={color}
+        strokeWidth={3.2}
+        strokeLinecap="round"
+      />
+    </Svg>
+  );
+}
+
+/** Recomeçar, na tela de resultado. */
+export function RestartIcon({ size = 22, color = colors.onPrimary }: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M4 12a8 8 0 1 1 2.3 5.6"
+        stroke={color}
+        strokeWidth={2.6}
+        strokeLinecap="round"
+      />
+      <Path
+        d="M4 20v-4h4"
+        stroke={color}
+        strokeWidth={2.6}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
+/** Voltar para a tela inicial. */
+export function HomeIcon({ size = 24, color = colors.textSecondary }: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M3.5 11.5L12 4l8.5 7.5"
+        stroke={color}
+        strokeWidth={2.3}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <Path
+        d="M6 10.2V19a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-8.8"
+        stroke={color}
+        strokeWidth={2.3}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}

@@ -252,7 +252,11 @@ export default function HomeScreen() {
           { paddingBottom: Math.max(insets.bottom, 16) + 10 },
         ]}
       >
-        <PrimaryButton label="PRATICAR" icon={<PlayIcon />} />
+        <PrimaryButton
+          label="PRATICAR"
+          icon={<PlayIcon />}
+          onPress={() => router.push('/practice')}
+        />
       </View>
 
       <CardMenuOverlay

@@ -39,6 +39,53 @@ export const colors = {
   danger: '#ff6b6b',
   /** Borda do botão de excluir. */
   dangerBorder: '#5a2b2b',
+
+  /** Botão principal enquanto nada foi escolhido. */
+  disabled: '#2a3840',
+  disabledText: '#556670',
+} as const;
+
+/**
+ * Cores do fluxo de prática. Cada modo tem a sua, e ela reaparece do início ao
+ * fim da rodada — azul acompanha o tempo, roxo acompanha a quantidade.
+ */
+export const game = {
+  time: {
+    main: '#4bc0f0',
+    soft: '#8fd9f2',
+    shadow: '#2a94c4',
+    on: '#0c2731',
+    tint: 'rgba(75,192,240,.14)',
+    border: '#1c556b',
+    chipBg: '#123543',
+  },
+  count: {
+    main: '#c084fc',
+    soft: '#d6b0ff',
+    shadow: '#8b5cc7',
+    on: '#241733',
+    tint: 'rgba(192,132,252,.14)',
+    border: '#4b3670',
+    chipBg: '#2a1f3d',
+  },
+  correct: {
+    main: '#7ad13a',
+    soft: '#9fe063',
+    shadow: '#4f8f22',
+    on: '#16300a',
+    tint: 'rgba(122,209,58,.14)',
+    border: '#4a6b1f',
+  },
+  wrong: {
+    main: '#ff6b6b',
+    soft: '#ff8f8f',
+    shadow: '#b84545',
+    on: '#3a1010',
+    tint: 'rgba(255,107,107,.12)',
+    border: '#5a2b2b',
+  },
+  /** Trilho vazio da barra de progresso. */
+  track: '#243139',
 } as const;
 
 /** Amarelo com transparência — usado em fundos e bordas tracejadas. */

@@ -37,9 +37,9 @@ Os dados ficam no aparelho: o app funciona offline por completo.
 - ✅ Busca por referência e por significado, ignorando acentos
 - ✅ Criar, editar e excluir cartões
 - ✅ Armazenamento local em SQLite, com migrações
-- ⬜ Modo de estudo por tempo ou por quantidade
+- ✅ Modo de estudo por tempo ou por quantidade
 - ⬜ Correção do significado por IA, aceitando respostas aproximadas
-- ⬜ Tela de resultados com acertos, erros e tempo
+- ✅ Tela de resultados com acertos, erros e tempo
 
 ## Tecnologias
 

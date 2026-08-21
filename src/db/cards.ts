@@ -117,3 +117,34 @@ export async function countCards(db: SQLite.SQLiteDatabase): Promise<number> {
   );
   return row?.total ?? 0;
 }
+
+/**
+ * Baralho de uma rodada: cartões com significado preenchido, embaralhados.
+ *
+ * A ordem vem do SQLite (`RANDOM()`) para não carregar tudo só para sortear.
+ * `limit` corta o baralho no modo por quantidade; no modo por tempo ele vem
+ * inteiro, porque não dá para saber de antemão quantos cartões cabem.
+ */
+export async function drawCards(
+  db: SQLite.SQLiteDatabase,
+  limit?: number,
+): Promise<Card[]> {
+  const rows = await db.getAllAsync<CardRow>(
+    `SELECT id, reference, meaning FROM cards
+     WHERE TRIM(meaning) <> ''
+     ORDER BY RANDOM()
+     ${limit === undefined ? '' : 'LIMIT ?'};`,
+    limit === undefined ? [] : [limit],
+  );
+  return rows;
+}
+
+/** Quantos cartões podem entrar numa rodada (os que têm significado). */
+export async function countPlayableCards(
+  db: SQLite.SQLiteDatabase,
+): Promise<number> {
+  const row = await db.getFirstAsync<{ total: number }>(
+    "SELECT COUNT(*) AS total FROM cards WHERE TRIM(meaning) <> '';",
+  );
+  return row?.total ?? 0;
+}

@@ -1,0 +1,76 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; scrollbar-width:none; }
+    *::-webkit-scrollbar { display:none; }
+    body { margin:0; font-family:'Nunito',system-ui,sans-serif; color:#f1f7fb; -webkit-font-smoothing:antialiased; }
+    .phone { width:390px; height:844px; background:#131f24; position:relative; overflow:hidden; display:flex; flex-direction:column; }
+    .display { font-family:'Baloo 2','Nunito',system-ui,sans-serif; }
+  </style>
+</helmet>
+
+<div class="phone">
+
+  <!-- Close -->
+  <div style="padding:34px 18px 0 18px;">
+    <button style="width:42px; height:42px; border-radius:12px; background:#1f2c33; border:none; display:flex; align-items:center; justify-content:center; cursor:pointer;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="#7d929c" stroke-width="2.6" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+
+  <!-- Selected mode chip -->
+  <div style="display:flex; justify-content:center; margin-top:18px;">
+    <div style="display:flex; align-items:center; gap:12px; background:#2a1f3d; border:2px solid #4b3670; border-radius:18px; padding:12px 20px;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3.5" y="6.5" width="12" height="14" rx="2.6" stroke="#c084fc" stroke-width="2.1"/><path d="M8 3.5h10a2.5 2.5 0 0 1 2.5 2.5v11" stroke="#c084fc" stroke-width="2.1" stroke-linecap="round"/></svg>
+      <span style="font-family:'Baloo 2',sans-serif; font-size:19px; font-weight:800; color:#d6b0ff;">Por quantidade</span>
+    </div>
+  </div>
+
+  <!-- Smaller question -->
+  <div style="text-align:center; padding:26px 28px 0 28px;">
+    <h2 class="display" style="margin:0; font-size:22px; font-weight:800; color:#f1f7fb;">Quantos cartões?</h2>
+  </div>
+
+  <!-- Stepper -->
+  <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:26px;">
+    <div style="display:flex; align-items:center; gap:24px;">
+      <button style="width:64px; height:64px; border-radius:20px; background:#1f2c33; border:2px solid #37464f; border-bottom-width:5px; display:flex; align-items:center; justify-content:center; cursor:pointer;">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M5 12h14" stroke="#7d929c" stroke-width="3.2" stroke-linecap="round"/></svg>
+      </button>
+
+      <div style="text-align:center; min-width:120px;">
+        <div style="font-family:'Baloo 2',sans-serif; font-size:64px; font-weight:800; color:#c084fc; line-height:1;">20</div>
+        <div style="font-size:15px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:#7d929c; margin-top:2px;">cartões</div>
+      </div>
+
+      <button style="width:64px; height:64px; border-radius:20px; background:#c084fc; box-shadow:0 5px 0 #8b5cc7; border:none; display:flex; align-items:center; justify-content:center; cursor:pointer;">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#241733" stroke-width="3.2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div style="font-size:14px; font-weight:700; color:#556670;">ajuste de 1 em 1 cartão</div>
+  </div>
+
+  <!-- Start -->
+  <div style="padding:12px 18px 30px 18px;">
+    <button style="width:100%; height:58px; border:none; border-radius:16px; background:#ffc800; box-shadow:0 4px 0 #c99a00; color:#2b2317; font-family:'Nunito',sans-serif; font-weight:800; font-size:18px; letter-spacing:.8px; text-transform:uppercase; cursor:pointer;">Começar</button>
+  </div>
+
+</div>
+
+<script data-dc-script data-props='{}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</x-dc>
+</body>
+</html>

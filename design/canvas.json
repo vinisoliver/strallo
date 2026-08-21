@@ -10,42 +10,6 @@
       "page": "marca"
     },
     {
-      "file": "GameSelect.dc.html",
-      "x": 0,
-      "y": 0,
-      "w": 390,
-      "h": 844,
-      "title": "1 · Escolher modo",
-      "page": "jogo"
-    },
-    {
-      "file": "GameConfig.dc.html",
-      "x": 470,
-      "y": 0,
-      "w": 390,
-      "h": 844,
-      "title": "2 · Configurar",
-      "page": "jogo"
-    },
-    {
-      "file": "Playing.dc.html",
-      "x": 940,
-      "y": 0,
-      "w": 390,
-      "h": 844,
-      "title": "3 · Jogando",
-      "page": "jogo"
-    },
-    {
-      "file": "Results.dc.html",
-      "x": 1410,
-      "y": 0,
-      "w": 390,
-      "h": 844,
-      "title": "4 · Resultado",
-      "page": "jogo"
-    },
-    {
       "file": "Main.dc.html",
       "x": 0,
       "y": 0,
@@ -60,7 +24,7 @@
       "y": 0,
       "w": 390,
       "h": 844,
-      "title": "2 · Segurar 2s (menu)",
+      "title": "2 · Segurar (menu)",
       "page": "inicio"
     },
     {
@@ -71,6 +35,69 @@
       "h": 844,
       "title": "3 · Editar card",
       "page": "inicio"
+    },
+    {
+      "file": "GameSelect.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "1 · Escolher modo",
+      "page": "jogo"
+    },
+    {
+      "file": "GameConfig.dc.html",
+      "x": 470,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "2a · Configurar tempo",
+      "page": "jogo"
+    },
+    {
+      "file": "GameConfigCount.dc.html",
+      "x": 940,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "2b · Configurar quantidade",
+      "page": "jogo"
+    },
+    {
+      "file": "Playing.dc.html",
+      "x": 1410,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "3 · Jogando",
+      "page": "jogo"
+    },
+    {
+      "file": "AnswerCorrect.dc.html",
+      "x": 1880,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "4a · Resposta certa",
+      "page": "jogo"
+    },
+    {
+      "file": "AnswerWrong.dc.html",
+      "x": 2350,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "4b · Resposta errada",
+      "page": "jogo"
+    },
+    {
+      "file": "Results.dc.html",
+      "x": 2820,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "5 · Resultado",
+      "page": "jogo"
     }
   ],
   "annotations": [
@@ -81,19 +108,11 @@
       "w": 560,
       "text": "MARCA · STRALLO\nLogotipo: a palavra 'strallo' desenhada à mão, toda amarela, começando pelo 'st'. O 'st' sozinho serve de símbolo/ícone. Versão mono para fundo claro.",
       "page": "marca"
-    },
-    {
-      "id": "nota-jogo",
-      "x": 0,
-      "y": -96,
-      "w": 480,
-      "text": "FLUXO JOGO\nEscolha o modo (sobe e escurece), configure tempo (5 em 5s) ou quantidade (1 em 1), jogue digitando o significado e veja o resultado.",
-      "page": "jogo"
     }
   ],
   "launch": {
     "view": "canvas",
-    "page": "inicio"
+    "page": "jogo"
   },
   "pages": [
     {

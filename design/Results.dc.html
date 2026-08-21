@@ -8,7 +8,7 @@
 <x-dc>
 <helmet>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&amp;family=Nunito:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; scrollbar-width:none; }
     *::-webkit-scrollbar { display:none; }
@@ -22,13 +22,26 @@
 
   <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:0 26px;">
 
-    <!-- Celebration image -->
+    <!-- Celebration image: troféu no traço da marca -->
     <svg width="180" height="150" viewBox="0 0 180 150" fill="none">
-      <path d="M40 20l6 14 15 2-11 10 3 15-13-8-13 8 3-15-11-10 15-2 6-14z" fill="#ffe27a"/>
-      <path d="M150 30l4 9 10 1-7 7 2 10-9-5-9 5 2-10-7-7 10-1 4-9z" fill="#ffc800"/>
-      <circle cx="90" cy="88" r="46" fill="#3a3413" stroke="#ffc800" stroke-width="4"/>
-      <path d="M112 44l3 7 8 1-6 5 2 8-7-4-7 4 2-8-6-5 8-1 3-7z" fill="#ffe27a"/>
-      <path d="M70 90l14 14 26-28" stroke="#ffc800" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- faíscas -->
+      <path d="M152 78l2 5 5 2-5 2-2 5-2-5-5-2 5-2 2-5z" fill="#ffe27a"></path><path d="M30 40l3.5 8.5 8.5 3.5-8.5 3.5L30 64l-3.5-8.5L18 52l8.5-3.5L30 40z" fill="#ffe27a"></path>
+      <path d="M147 32l2.5 6 6 2.5-6 2.5-2.5 6-2.5-6-6-2.5 6-2.5 2.5-6z" fill="#ffc800"></path>
+      
+
+      <!-- alças -->
+      <path d="M58 44H43c0 17 6 26 17 28" stroke="#ffc800" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></path>
+      <path d="M112 44h15c0 17-6 26-17 28" stroke="#ffc800" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></path>
+
+      <!-- taça -->
+      <path d="M57 34h56v20c0 15.5-12.5 28-28 28S57 69.5 57 54V34z" fill="#ffc800"></path>
+      <!-- estrela vazada -->
+      <path d="M85 44l4.5 9.5 10.5 1.5-7.5 7.5 1.5 10.5-9-5-9 5 1.5-10.5-7.5-7.5 10.5-1.5L85 44z" fill="#2b2317"></path>
+
+      <!-- haste e base -->
+      <path d="M85 82v16" stroke="#ffc800" stroke-width="9" stroke-linecap="round"></path>
+      <path d="M68 104h34c2.2 0 4 1.8 4 4v6H64v-6c0-2.2 1.8-4 4-4z" fill="#ffc800"></path>
+      <rect x="58" y="118" width="54" height="11" rx="5.5" fill="#c99a00"></rect>
     </svg>
 
     <h1 class="display" style="margin:24px 0 6px 0; font-size:34px; font-weight:800; color:#ffc800;">Muito bem!</h1>
@@ -56,18 +69,19 @@
 
   <!-- Actions -->
   <div style="padding:12px 18px 30px 18px; display:flex; gap:12px;">
+    <!-- Voltar para o início -->
     <button style="width:64px; height:58px; border-radius:16px; background:#1f2c33; border:2px solid #37464f; border-bottom-width:4px; display:flex; align-items:center; justify-content:center; cursor:pointer; flex:none;">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3.2" stroke="#7d929c" stroke-width="2.2"/><path d="M12 2.5v3M12 18.5v3M21.5 12h-3M5.5 12h-3M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1M18.7 18.7l-2.1-2.1M7.4 7.4L5.3 5.3" stroke="#7d929c" stroke-width="2.2" stroke-linecap="round"/></svg>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M3.5 11.5L12 4l8.5 7.5" stroke="#7d929c" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"></path><path d="M6 10.2V19a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-8.8" stroke="#7d929c" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"></path></svg>
     </button>
     <button style="flex:1; height:58px; border:none; border-radius:16px; background:#ffc800; box-shadow:0 4px 0 #c99a00; color:#2b2317; font-family:'Nunito',sans-serif; font-weight:800; font-size:17px; letter-spacing:.8px; text-transform:uppercase; display:flex; align-items:center; justify-content:center; gap:10px; cursor:pointer;">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 12a8 8 0 1 1 2.3 5.6" stroke="#2b2317" stroke-width="2.6" stroke-linecap="round"/><path d="M4 20v-4h4" stroke="#2b2317" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 12a8 8 0 1 1 2.3 5.6" stroke="#2b2317" stroke-width="2.6" stroke-linecap="round"></path><path d="M4 20v-4h4" stroke="#2b2317" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
       Recomeçar
     </button>
   </div>
 
 </div>
 
-<script data-dc-script data-props='{}'>
+<script data-dc-script="" data-props="{}">
 class Component extends DCLogic {
   renderVals() { return {}; }
 }

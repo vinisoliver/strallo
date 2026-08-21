@@ -54,6 +54,20 @@ export default function RootLayout() {
         >
           <Stack.Screen name="index" />
           <Stack.Screen name="card/[id]" />
+          {/* O fluxo de prática entra de baixo, como uma sessão à parte. */}
+          <Stack.Screen
+            name="practice/index"
+            options={{ animation: 'slide_from_bottom' }}
+          />
+          <Stack.Screen name="practice/config" />
+          <Stack.Screen
+            name="practice/play"
+            options={{ gestureEnabled: false }}
+          />
+          <Stack.Screen
+            name="practice/results"
+            options={{ gestureEnabled: false }}
+          />
         </Stack>
       </SQLiteProvider>
     </SafeAreaProvider>

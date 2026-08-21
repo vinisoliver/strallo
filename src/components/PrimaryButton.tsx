@@ -8,6 +8,12 @@ type Props = {
   onPress?: () => void;
   icon?: ReactNode;
   disabled?: boolean;
+  /** Cor do botão. O padrão é o amarelo da marca. */
+  color?: string;
+  /** Borda inferior mais escura, o efeito "3D". */
+  shadow?: string;
+  /** Cor do texto sobre o botão. */
+  textColor?: string;
 };
 
 /**
@@ -15,7 +21,15 @@ type Props = {
  * design descreve como `box-shadow: 0 4px 0 #c99a00`. Ao pressionar, o botão
  * desce os 4px da borda, como no Duolingo.
  */
-export function PrimaryButton({ label, onPress, icon, disabled }: Props) {
+export function PrimaryButton({
+  label,
+  onPress,
+  icon,
+  disabled,
+  color = colors.primary,
+  shadow = colors.primaryShadow,
+  textColor = colors.onPrimary,
+}: Props) {
   return (
     <Pressable
       onPress={onPress}
@@ -25,13 +39,24 @@ export function PrimaryButton({ label, onPress, icon, disabled }: Props) {
       accessibilityState={{ disabled: !!disabled }}
       style={({ pressed }) => [
         styles.button,
-        pressed && styles.pressed,
+        { backgroundColor: color, borderBottomColor: shadow },
+        // Desativado não é o botão amarelo apagado: é uma superfície neutra,
+        // como no design, para não parecer que ainda dá para tocar.
         disabled && styles.disabled,
+        pressed && !disabled && styles.pressed,
       ]}
     >
       <View style={styles.content}>
         {icon}
-        <Text style={styles.label}>{label}</Text>
+        <Text
+          style={[
+            styles.label,
+            { color: textColor },
+            disabled && styles.disabledLabel,
+          ]}
+        >
+          {label}
+        </Text>
       </View>
     </Pressable>
   );
@@ -42,9 +67,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: layout.buttonHeight,
     borderRadius: radius.field,
-    backgroundColor: colors.primary,
     borderBottomWidth: 4,
-    borderBottomColor: colors.primaryShadow,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -53,7 +76,12 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   disabled: {
-    opacity: 0.45,
+    backgroundColor: colors.disabled,
+    borderBottomWidth: 0,
+    marginTop: 4,
+  },
+  disabledLabel: {
+    color: colors.disabledText,
   },
   content: {
     flexDirection: 'row',
@@ -64,6 +92,5 @@ const styles = StyleSheet.create({
     fontFamily: font.bodyBlack,
     fontSize: 17,
     letterSpacing: 0.8,
-    color: colors.onPrimary,
   },
 });

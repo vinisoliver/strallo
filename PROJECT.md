@@ -31,9 +31,9 @@ acima** (`url`) para manter o mesmo link.
 
 - **Fluxo Início — FINALIZADO** (design + código): tela inicial, seleção
   (menu do card) e edição/adição de card.
-- **Fluxo Jogo — desenhado (mockups), ainda não implementado**: escolher
-  modo, configurar, jogar, resultado. O botão **PRATICAR** existe na tela
-  inicial mas ainda não navega para lugar nenhum.
+- **Fluxo Jogo — FINALIZADO** (design + código): escolher modo, configurar
+  (tempo ou quantidade), jogar, ver a resposta e o resultado da rodada.
+  **PRATICAR** na tela inicial abre o fluxo.
 
 ## Design system
 
@@ -144,6 +144,10 @@ Estrutura:
 - `app/index.tsx` — tela inicial: grade, busca, rail alfabético, menu de
   seleção e navbar.
 - `app/card/[id].tsx` — adicionar (`/card/new`) e editar (`/card/<id>`).
+- `app/practice/` — o fluxo de prática: `index` (escolher modo), `config`
+  (tempo ou quantidade), `play` (a rodada) e `results`.
+- `src/game/` — regras da rodada: `types.ts` (modos, limites, durações das
+  animações) e `answer.ts` (o que conta como resposta certa).
 - `src/theme.ts` — tokens do design (cores, raios, medidas). **Fonte da
   verdade do visual no código** — mudou a canvas, muda aqui primeiro.
 - `src/db/` — migrações (`index.ts`) e CRUD (`cards.ts`).
@@ -153,5 +157,17 @@ Estrutura:
   resolve para onde o rail rola.
 - `src/components/` — componentes da UI.
 
-O que ainda **não** existe: o fluxo de jogo, a verificação de significado
-por IA (o design prevê respostas aproximadas) e qualquer backend.
+**Regras da rodada**
+
+- Modo por tempo: o relógio corre e a barra do topo enche sozinha até zerar;
+  ela pausa enquanto a resposta está na tela, para ler não custar segundos.
+  O baralho reinicia se acabar antes do tempo.
+- Modo por quantidade: a barra acompanha os cartões respondidos e a rodada
+  acaba quando o baralho termina.
+- Só entram cartões com significado preenchido.
+- A resposta é aceita ignorando acentos, maiúsculas e pontuação, e basta a
+  primeira parte do significado (antes de `—`, `,`, `;` ou `/`).
+
+O que ainda **não** existe: a verificação de significado por IA (o design
+prevê respostas de fato aproximadas — hoje a regra é local, em
+`src/game/answer.ts`) e qualquer backend.
