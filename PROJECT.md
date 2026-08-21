@@ -13,10 +13,10 @@ primária. Nome todo minúsculo: **strallo** (o app se apresenta como
 | --- | --- | --- |
 | **Fluxo Início** — grade, busca, rail alfabético, criar/editar/excluir | pronto | pronto |
 | **Fluxo Jogo** — escolher modo, configurar, jogar, resposta, resultado | pronto | pronto |
-| **Coleções** — agrupar cartões em pastas | pronto (canvas) | **não começou** |
+| **Coleções** — agrupar cartões em pastas | pronto | pronto |
 
-**O próximo passo é implementar coleções em código.** Todo o design já
-está desenhado e as decisões estão registradas mais abaixo.
+Os três fluxos estão em pé. O que falta do README (nuvem, compartilhar
+coleções, imagem, IA, voz, frases) ainda não tem design nem código.
 
 ---
 
@@ -86,7 +86,7 @@ artboards como PNG — **ver Pendências**).
 ```
 app/
   _layout.tsx          fontes, SQLiteProvider, Stack
-  index.tsx            tela inicial
+  index.tsx            tela inicial — grade, coleções, seleção múltipla
   card/[id].tsx        adicionar (/card/new) e editar (/card/<id>)
   practice/
     index.tsx          escolher modo
@@ -96,15 +96,41 @@ app/
 src/
   theme.ts             tokens do design (cores, raios, medidas)
   db/index.ts          migrações versionadas por user_version
-  db/cards.ts          CRUD e consultas
+  db/cards.ts          CRUD de cartões, repetidas e sorteio do baralho
+  db/collections.ts    CRUD da árvore, mover, excluir em cascata
+  db/library.ts        a listagem única de coleções + cartões da grade
   game/types.ts        modos, limites, durações das animações
   game/answer.ts       o que conta como resposta certa
+  hooks/useLibrary.ts  carrega um nível da árvore + a árvore inteira
+  hooks/useCollectionTree.ts  só a árvore, para a tela de edição
   components/          componentes de interface
-  utils/text.ts        normalização (sem acento/minúsculas)
+  utils/text.ts        `normalize` (sem acento) e `foldCase` (com acento)
   utils/grid.ts        monta a grade e resolve o rail alfabético
+  utils/collections.ts contagens da subárvore, caminho, guarda de ciclo
 design/                artboards da canvas
 scripts/               geração de ícones e capturas
 ```
+
+Uma coleção aberta **não é uma rota**: `app/index.tsx` guarda em qual
+coleção está e troca o conteúdo da própria tela. Por isso o voltar do
+Android é interceptado ali — ele sai da seleção, depois sobe um nível, e
+só então deixa o sistema fechar o app.
+
+Duas coisas nessa tela existem por causa de como ela *parecia* funcionar,
+e é fácil desfazê-las sem perceber:
+
+- **`requestedId` e `collectionId` são diferentes.** O primeiro é o nível
+  pedido pelo toque; o segundo, o nível a que os dados na tela pertencem,
+  e vem de `useLibrary`. O cabeçalho lê o **segundo**. Se ler o primeiro,
+  o caminho troca no quadro do toque e a grade só troca quando a consulta
+  volta — o cabeçalho já diz "Verbos" com os cartões do Início na tela.
+- **`GridTile` é `memo`, e as funções de toque nascem fora dele.** Marcar
+  um item redesenhava todos os visíveis, cada pasta com o seu SVG, e o
+  toque seguinte só era atendido depois — o atraso entre cliques na
+  seleção múltipla. Trocar `onPress={handleEntryPress}` por
+  `onPress={() => toggle(id)}` traz o atraso de volta, porque a prop
+  passa a ser nova a cada renderização. `AlphabetRail` é `memo` pelo
+  mesmo motivo.
 
 `src/theme.ts` é a **fonte da verdade do visual no código**. Mudou a
 canvas, muda ali primeiro.
@@ -116,6 +142,16 @@ canvas, muda ali primeiro.
 **Cartões**
 - Referência e significado são **ambos obrigatórios** — o botão Salvar e
   o "OK" do teclado seguem a mesma regra.
+- **Referência não se repete**, no app inteiro. A comparação ignora caixa
+  e espaços nas pontas, mas **respeita o acento**: "café" e "cafe" são
+  dois cartões, e os dois podem existir (decisão do Vinícius). Quem
+  compara é a coluna `reference_key` (migração 4), porque o `lower()` do
+  SQLite só mexe em A–Z. O aviso aparece enquanto se digita, e
+  `handleSave` refaz a consulta antes de gravar — digitar depressa e
+  tocar em Salvar passaria pelo aviso, que é assíncrono.
+- O cartão escolhe **em qual coleção fica**, na própria tela de edição,
+  pela mesma folha do "Mover para". Vale para novo e para existente; num
+  cartão novo aberto de dentro de uma coleção, ela já vem escolhida.
 - `sort_key` e `meaning_key` guardam o texto normalizado (sem acento, em
   minúsculas). O `lower()` do SQLite não remove acentos, por isso as
   colunas existem.
@@ -160,58 +196,86 @@ canvas, muda ali primeiro.
 
 ---
 
-## Coleções — o que implementar
+## Coleções — como ficou
 
-Design pronto na canvas; **nada em código ainda**.
+Implementado a partir das artboards `CollectionsHome`, `SelectMode`,
+`CreateCollection`, `MoveToCollection` e `InsideCollection`.
 
-### Comportamento acordado
+### Modelo de dados (migração 3)
 
-**Seleção múltipla** (substitui o menu de um cartão só)
-- Segurar um cartão liga o modo seleção.
-- O fundo **não escurece**; todos os itens ganham caixa de seleção vazia,
-  prontos para toque.
+Tabela `collections` com `parent_id` (árvore) e coluna `collection_id`
+em `cards`. **`NULL` é o Início** nas duas tabelas — "estar na raiz" tem
+a mesma representação para pasta e para cartão, e é o que deixa as
+consultas compararem tudo com o mesmo `IS`.
+
+Não há `FOREIGN KEY`: o `PRAGMA foreign_keys` do SQLite vem desligado, e
+a integridade dependeria de um pragma fácil de esquecer. Quem apaga a
+subárvore é `deleteCollections`.
+
+Percorrer a árvore é sempre a mesma CTE, `SUBTREE_CTE` em
+`src/db/collections.ts`, que recebe a raiz e devolve ela e tudo abaixo.
+Duas armadilhas dela, já resolvidas no código:
+
+- o filtro é `EXISTS (SELECT 1 FROM tree WHERE tree.id IS x)`, **nunca**
+  `x IN (SELECT id FROM tree)` — a raiz entra como `NULL`, e no SQLite
+  `NULL IN (NULL, 1)` não é verdadeiro, então o Início sumiria;
+- a recursão usa vírgula (`FROM collections c, tree t`), não `JOIN`.
+
+### Comportamento
+
+**Seleção múltipla** (substituiu o menu de um cartão só)
+- Segurar um item liga o modo, já marcando o que estava sob o dedo.
+- O fundo **não escurece**; todos os itens ganham caixa vazia.
 - O **rail alfabético continua funcionando** durante a seleção.
-- Barra fixa embaixo com: **Agrupar**, **Mover**, **Editar**, **Excluir**.
-  - **Agrupar** só aparece com **2 ou mais** selecionados.
-  - **Editar** só com **exatamente 1** (com 2+ fica desabilitado).
-- Coleções também podem ser selecionadas.
+- Barra fixa embaixo: **Agrupar** (só com 2+), **Mover**, **Editar** (só
+  com exatamente 1; com 2+ fica apagada), **Excluir**.
+- Sair é só pelo X — desmarcar o último item **não** encerra o modo.
 
-**Criar coleção** — modal com nome e **10 cores predefinidas** em
-quadradinhos (grade 5×2); a escolhida ganha anel branco.
+**Criar / editar / agrupar** — o mesmo modal nos três casos, só mudam
+título e botão. Nome e **10 cores fixas** em grade 5×2; a escolhida ganha
+anel branco.
 
 Cores: `#ffc800` `#ff9f45` `#ff6b6b` `#ff7eb6` `#c084fc` `#8b9dff`
 `#4bc0f0` `#3fd9c0` `#7ad13a` `#c3e04a`
 
-**Mover** — folha com as coleções **de um nível por vez**, sem recuo, e
-o caminho ("Início › Verbos › Irregulares") logo abaixo do topo: é por
-ele que se navega de volta. Tocar numa linha entra nela; o botão
-**MOVER** confirma o destino que o caminho aponta. Tem também um botão
-para criar uma coleção nova, que abre o modal de criação e **volta**
-para a lista.
+**Mover** — `CollectionPicker`: folha com as coleções de um nível por
+vez, sem recuo, e o caminho logo abaixo do topo (é por ele que se volta).
+O botão confirma o nível que o caminho aponta, Início inclusive. A folha
+**esconde as coleções sendo movidas e o que está dentro delas** (prop
+`excludeIds`) — sem isso daria para pôr uma coleção dentro de si mesma e
+arrancar o galho da árvore. `applyMove` repete a checagem, como rede.
 
-**Toast** — depois de mover, aparece embaixo: "3 itens movidos para
-**Verbos**", com "Desfazer".
+O mesmo componente serve a tela de edição de cartão, onde só mudam o
+título, o subtítulo e o rótulo do botão — e `excludeIds` fica vazio,
+porque escolher onde um cartão mora não tem como criar ciclo.
+
+**Toast** — depois de mover: "3 itens movidos para **Verbos**", com
+"Desfazer" que devolve **cada item ao lugar de onde saiu** (o snapshot
+guarda o pai de cada um, então uma seleção vinda de pastas diferentes
+volta certa). Some sozinho em 4,2s.
 
 **Home e navegação**
-- Coleções aparecem **na mesma grade** dos cartões e seguem a **mesma
-  ordem alfabética**, com ícone de pasta na cor escolhida.
-- Card de coleção: mesmo cartão dos demais (`#1f2c33`, borda `#37464f`),
-  com a cor só no **ícone do canto superior direito** e na **borda
-  inferior**. Contador em 10px ("12 coleções, 88 cartões").
-- **Coleções dentro de coleções** são permitidas (árvore).
-- Entrar numa coleção **troca o conteúdo da mesma tela** e mostra o
-  caminho ("Início › Verbos") — não é uma rota nova.
-- Dentro de uma coleção, **Praticar usa só os cartões dela** (incluindo
-  os das subcoleções).
+- Coleções entram **na mesma grade** e na **mesma ordem alfabética** dos
+  cartões, com ícone de pasta na cor escolhida.
+- Card de coleção: o mesmo cartão dos demais, com a cor só no ícone do
+  canto e na borda inferior. Contador em 10px, somando a **subárvore
+  inteira** ("12 coleções, 88 cartões"); vazia mostra "Vazia".
+- Coleções dentro de coleções são permitidas.
+- Entrar numa coleção **troca o conteúdo da mesma tela** — não é rota
+  nova. Ver a nota na Estrutura sobre o voltar do Android.
+- Dentro de uma coleção, **Praticar usa só os cartões dela e das
+  subcoleções**, e a coleção viaja como parâmetro até o "Recomeçar" da
+  tela de resultado.
 
-### O que ainda não foi decidido
+**Busca dentro de coleção** — procura na **subárvore**, não só no nível
+aberto. É o que a tela promete ("Buscar nesta coleção") e evita um cartão
+sumir da busca por ter sido guardado numa pasta; no Início, onde a
+subárvore é o app todo, o comportamento é o de sempre. A ordem segue a
+regra dos cartões, com as coleções no primeiro bloco (o dos nomes).
 
-- Modelo de dados: sugestão é uma tabela `collections` com
-  `parent_id` (árvore) e `collection_id` em `cards`, mas nada foi
-  combinado com o Vinícius.
-- O que acontece ao excluir uma coleção com conteúdo dentro.
-
----
+**Excluir uma coleção leva o conteúdo junto**, em qualquer profundidade —
+decisão do Vinícius, em 21/08/2026. Nada sobe para o nível de cima. Por
+isso a confirmação diz quantos cartões vão embora (`describeDeletion`).
 
 ## Design system
 
@@ -269,10 +333,31 @@ linecap/linejoin round):
 
 ## Pendências e armadilhas conhecidas
 
-**Não commitado** (último commit: `5d27793`)
-- `src/components/ConfirmDialog.tsx` e o uso dele em
-  `app/practice/play.tsx` e `app/card/[id].tsx`.
-- Todo o design de coleções em `design/`.
+**Não commitado** (último commit: `d0fedb6`) — toda a implementação de
+coleções: `src/db/collections.ts`, `src/db/library.ts`,
+`src/utils/collections.ts`, `src/hooks/useLibrary.ts`,
+`src/hooks/useCollectionTree.ts`, os componentes novos (`Breadcrumb`,
+`CollectionDialog`, `CollectionPicker`, `GridTile`, `SelectionBar`,
+`SelectionBox`, `Toast`), a reescrita de `app/index.tsx` e o campo de
+coleção + regra de referência repetida em `app/card/[id].tsx`.
+`CardMenuOverlay` e `useCards` foram apagados — o menu de um cartão só
+virou seleção múltipla, e a listagem agora é de coleções + cartões
+juntos.
+
+**Não há testes automatizados.** As consultas recursivas e a aritmética
+da árvore foram conferidas rodando o SQL num SQLite de verdade (via
+`python -c`, com o mesmo schema das migrações) e transpilando
+`utils/collections.ts` para rodar no node. Vale repetir isso ao mexer
+nelas — `tsc` não pega `NULL IN (...)`.
+
+**Nunca foi visto rodando.** O código empacota (`npx expo export
+--platform android` passa) e o `tsc` está limpo, mas as telas de coleção
+não foram abertas num aparelho nem num emulador. Três coisas que só o uso
+revela: o modal de criar coleção **abre por cima da folha de escolher**
+(dois `Modal` do RN ao mesmo tempo, em duas telas diferentes), a barra de
+seleção precisa caber com quatro ações em telas estreitas, e a fluidez da
+seleção múltipla — o `memo` do `GridTile` foi medido só por raciocínio,
+não com o profiler.
 
 **As capturas de tela pararam de funcionar.** `generate-screens.mjs` usa
 o Edge em headless; num certo ponto o Edge parou de responder neste
@@ -280,16 +365,19 @@ ambiente (nem fora do puppeteer ele devolve DOM). As últimas artboards
 foram publicadas **sem conferência visual**. Se precisar de prévias,
 investigue o Edge ou troque por outro navegador.
 
-**`Alert` nativo ainda em três lugares** — excluir cartão (na home e na
-edição) e "Não deu para salvar". São candidatos ao `ConfirmDialog`, mas
-o Vinícius não pediu a troca.
+**`Alert` nativo ainda em dois lugares** — excluir cartão na tela de
+edição e "Não deu para salvar", ambos em `app/card/[id].tsx`. São
+candidatos ao `ConfirmDialog`, mas o Vinícius não pediu a troca. (Na home
+o `Alert` sumiu: excluir agora passa pela barra de seleção e pelo
+`ConfirmDialog`.)
 
 **O gesto de voltar** (deslizar da borda / botão do Android) na tela de
 edição **não** dispara a confirmação de descarte — o guarda está só no
 chevron.
 
-**Heredoc do bash quebra** com o HTML das artboards; use a ferramenta de
-escrita de arquivo para elas.
+**Heredoc do bash quebra** com o HTML das artboards — e com TSX grande
+também (`MoveSheet.tsx` falhou com "unexpected EOF" e não escreveu nada).
+Use a ferramenta de escrita de arquivo nesses casos.
 
 **Rotas tipadas**: ao criar uma rota nova, os tipos em `.expo/types` só
 são gerados quando o Metro roda. Se o `tsc` reclamar de uma rota que

@@ -30,10 +30,16 @@ type Phase = 'asking' | 'feedback';
 export default function PlayScreen() {
   const db = useSQLiteContext();
   const insets = useSafeAreaInsets();
-  const params = useLocalSearchParams<{ mode: GameMode; limit: string }>();
+  const params = useLocalSearchParams<{
+    mode: GameMode;
+    limit: string;
+    collection?: string;
+  }>();
 
   const mode: GameMode = params.mode === 'count' ? 'count' : 'time';
   const limit = Number(params.limit) || (mode === 'time' ? 60 : 20);
+  /** Rodada de uma coleção: só os cartões dela e das que estão dentro dela. */
+  const collectionId = Number(params.collection) || null;
 
   const [deck, setDeck] = useState<Card[]>([]);
   const [index, setIndex] = useState(0);
@@ -63,13 +69,15 @@ export default function PlayScreen() {
   // Baralho: no modo por quantidade já vem cortado no tamanho pedido.
   useEffect(() => {
     let active = true;
-    drawCards(db, mode === 'count' ? limit : undefined).then((cards) => {
-      if (active) setDeck(cards);
-    });
+    drawCards(db, mode === 'count' ? limit : undefined, collectionId).then(
+      (cards) => {
+        if (active) setDeck(cards);
+      },
+    );
     return () => {
       active = false;
     };
-  }, [db, limit, mode]);
+  }, [collectionId, db, limit, mode]);
 
   const finish = useCallback(
     (finalCorrect: number, finalAnswered: number) => {
@@ -82,10 +90,14 @@ export default function PlayScreen() {
           correct: String(finalCorrect),
           answered: String(finalAnswered),
           elapsed: String(elapsed),
+          // Vai junto para o "Recomeçar" cair na mesma coleção.
+          ...(collectionId === null
+            ? {}
+            : { collection: String(collectionId) }),
         },
       });
     },
-    [limit, mode],
+    [collectionId, limit, mode],
   );
 
   // Relógio do modo por tempo. Pausa enquanto a resposta está na tela: ler o

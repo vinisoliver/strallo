@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { router, useFocusEffect } from 'expo-router';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSQLiteContext } from 'expo-sqlite';
@@ -7,33 +7,45 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { BackIcon, CountIcon, TimeIcon } from '@/components/icons';
 import { countPlayableCards, drawCards, type Card } from '@/db/cards';
+import { getCollection } from '@/db/collections';
 import type { GameMode } from '@/game/types';
 import { colors, font, game, layout, radius } from '@/theme';
 
 export default function ChooseModeScreen() {
   const db = useSQLiteContext();
   const insets = useSafeAreaInsets();
+  const params = useLocalSearchParams<{ collection?: string }>();
+
+  /**
+   * Coleção de onde a prática foi aberta. Dentro dela a rodada usa só os
+   * cartões dali — incluindo os das subcoleções. `null` pratica o app todo.
+   */
+  const collectionId = Number(params.collection) || null;
 
   const [mode, setMode] = useState<GameMode | null>(null);
   const [total, setTotal] = useState(0);
   const [preview, setPreview] = useState<Card | null>(null);
+  const [scope, setScope] = useState<string | null>(null);
 
   useFocusEffect(
     useCallback(() => {
       let active = true;
 
-      Promise.all([countPlayableCards(db), drawCards(db, 1)]).then(
-        ([count, sample]) => {
-          if (!active) return;
-          setTotal(count);
-          setPreview(sample[0] ?? null);
-        },
-      );
+      Promise.all([
+        countPlayableCards(db, collectionId),
+        drawCards(db, 1, collectionId),
+        collectionId === null ? null : getCollection(db, collectionId),
+      ]).then(([count, sample, collection]) => {
+        if (!active) return;
+        setTotal(count);
+        setPreview(sample[0] ?? null);
+        setScope(collection?.name ?? null);
+      });
 
       return () => {
         active = false;
       };
-    }, [db]),
+    }, [collectionId, db]),
   );
 
   return (
@@ -49,7 +61,9 @@ export default function ChooseModeScreen() {
           <BackIcon />
         </Pressable>
 
-        <Text style={styles.headerTitle}>Praticar</Text>
+        <Text style={styles.headerTitle} numberOfLines={1}>
+          {scope ?? 'Praticar'}
+        </Text>
 
         <View style={styles.headerSpacer} />
       </View>
@@ -111,7 +125,12 @@ export default function ChooseModeScreen() {
             onPress={() =>
               router.push({
                 pathname: '/practice/config',
-                params: { mode: mode ?? 'time' },
+                params: {
+                  mode: mode ?? 'time',
+                  ...(collectionId === null
+                    ? {}
+                    : { collection: String(collectionId) }),
+                },
               })
             }
           />
@@ -119,7 +138,9 @@ export default function ChooseModeScreen() {
 
         {total === 0 ? (
           <Text style={styles.empty}>
-            Adicione cartões com significado para poder praticar.
+            {scope === null
+              ? 'Adicione cartões com significado para poder praticar.'
+              : 'Esta coleção ainda não tem cartões com significado.'}
           </Text>
         ) : null}
       </View>
@@ -188,10 +209,15 @@ const styles = StyleSheet.create({
     width: 42,
   },
   headerTitle: {
+    // Nome de coleção pode ser longo: o título cede espaço em vez de empurrar
+    // o botão de voltar para fora da tela.
+    flex: 1,
+    marginHorizontal: 8,
     fontFamily: font.display,
     fontSize: 20,
     lineHeight: 26,
     color: colors.text,
+    textAlign: 'center',
   },
   pressed: {
     opacity: 0.75,

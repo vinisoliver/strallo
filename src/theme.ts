@@ -37,13 +37,45 @@ export const colors = {
   onPrimary: '#2b2317',
 
   danger: '#ff6b6b',
+  /** Vermelho claro do rótulo "Excluir" na barra de seleção. */
+  dangerSoft: '#ff8f8f',
   /** Borda do botão de excluir. */
   dangerBorder: '#5a2b2b',
 
   /** Botão principal enquanto nada foi escolhido. */
   disabled: '#2a3840',
   disabledText: '#556670',
+
+  /** Caixa de seleção vazia, no modo de seleção múltipla. */
+  selectBox: '#55666f',
+  /** Fundo da caixa vazia — o cartão atrás continua aparecendo. */
+  selectBoxFill: 'rgba(19,31,36,.6)',
+  /** Barra de ações da seleção: um pouco mais clara que o fundo do app. */
+  selectionBar: '#182229',
+  /** Superfície do toast, acima da navbar. */
+  toast: '#22323a',
 } as const;
+
+/**
+ * As 10 cores que uma coleção pode ter. São fixas — o design escolheu uma
+ * grade 5×2 de quadradinhos, não um seletor livre, para as pastas ficarem
+ * distinguíveis entre si sem virar arco-íris.
+ */
+export const COLLECTION_COLORS = [
+  '#ffc800',
+  '#ff9f45',
+  '#ff6b6b',
+  '#ff7eb6',
+  '#c084fc',
+  '#8b9dff',
+  '#4bc0f0',
+  '#3fd9c0',
+  '#7ad13a',
+  '#c3e04a',
+] as const;
+
+/** Cor de uma coleção salva com valor fora da lista (banco antigo, importação). */
+export const DEFAULT_COLLECTION_COLOR = COLLECTION_COLORS[0];
 
 /**
  * Cores do fluxo de prática. Cada modo tem a sua, e ela reaparece do início ao

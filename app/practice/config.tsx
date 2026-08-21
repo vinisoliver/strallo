@@ -16,8 +16,14 @@ import { colors, font, game, layout, radius } from '@/theme';
 
 export default function ConfigScreen() {
   const insets = useSafeAreaInsets();
-  const params = useLocalSearchParams<{ mode: GameMode; limit?: string }>();
+  const params = useLocalSearchParams<{
+    mode: GameMode;
+    limit?: string;
+    collection?: string;
+  }>();
   const mode: GameMode = params.mode === 'count' ? 'count' : 'time';
+  /** Repassado sem ser lido: quem sorteia o baralho é a tela de jogo. */
+  const collection = params.collection;
 
   const settings = MODE_SETTINGS[mode];
   const palette = mode === 'time' ? game.time : game.count;
@@ -132,7 +138,11 @@ export default function ConfigScreen() {
           onPress={() =>
             router.replace({
               pathname: '/practice/play',
-              params: { mode, limit: String(value) },
+              params: {
+                mode,
+                limit: String(value),
+                ...(collection ? { collection } : {}),
+              },
             })
           }
         />

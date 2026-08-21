@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { memo, useMemo, useRef, useState } from 'react';
 import { PanResponder, StyleSheet, Text, View } from 'react-native';
 
 import { colors, font, layout, radius } from '@/theme';
@@ -21,8 +21,12 @@ type Props = {
  * tocar ou deslizar sobre uma letra leva a grade até ela. A altura de cada
  * letra vem da altura disponível, então o rail preenche a tela inteira em
  * qualquer aparelho.
+ *
+ * Vem embrulhado em `memo` porque desenha 26 letras e a tela inteira
+ * re-renderiza a cada toque da seleção múltipla e a cada quadro de rolagem —
+ * redesenhar o rail nessas horas é trabalho jogado fora.
  */
-export function AlphabetRail({
+export const AlphabetRail = memo(function AlphabetRail({
   letters,
   activeLetters,
   currentLetter,
@@ -172,7 +176,7 @@ export function AlphabetRail({
       })}
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   rail: {

@@ -184,6 +184,71 @@ export function StarIcon({ size = 15, color = colors.primary }: IconProps) {
   );
 }
 
+/** Traçado da pasta — o mesmo em todas as variantes do ícone de coleção. */
+const FOLDER_PATH =
+  'M3 7.5a2 2 0 0 1 2-2h3.6l1.9 2.2H19a2 2 0 0 1 2 2v7.8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7.5z';
+
+/** Coleção. A cor vem da coleção, não do tema. */
+export function FolderIcon({ size = 20, color = colors.primary }: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path d={FOLDER_PATH} stroke={color} strokeWidth={2} strokeLinejoin="round" />
+    </Svg>
+  );
+}
+
+/** Agrupar: a pasta com um "+" dentro. */
+export function FolderPlusIcon({ size = 24, color = colors.primary }: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path d={FOLDER_PATH} stroke={color} strokeWidth={2} strokeLinejoin="round" />
+      <Path
+        d="M12 11v5M9.5 13.5h5"
+        stroke={color}
+        strokeWidth={2}
+        strokeLinecap="round"
+      />
+    </Svg>
+  );
+}
+
+/** Mover: a pasta com a seta entrando nela. */
+export function FolderMoveIcon({
+  size = 24,
+  color = colors.railActive,
+}: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path d={FOLDER_PATH} stroke={color} strokeWidth={2} strokeLinejoin="round" />
+      <Path
+        d="M9.5 13.5h5.5M13 11.5l2 2-2 2"
+        stroke={color}
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
+/** Separador do caminho ("Início › Verbos") e afordância de "entra aqui". */
+export function ChevronRightIcon({
+  size = 13,
+  color = '#556670',
+}: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M9 5l7 7-7 7"
+        stroke={color}
+        strokeWidth={2.6}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
 /** Fecha o fluxo de prática. */
 export function CloseIcon({ size = 22, color = colors.textSecondary }: IconProps) {
   return (

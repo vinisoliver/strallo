@@ -16,6 +16,7 @@ export default function ResultsScreen() {
     correct: string;
     answered: string;
     elapsed: string;
+    collection?: string;
   }>();
 
   const mode: GameMode = params.mode === 'count' ? 'count' : 'time';
@@ -99,7 +100,13 @@ export default function ResultsScreen() {
           onPress={() =>
             router.replace({
               pathname: '/practice/config',
-              params: { mode, limit: params.limit },
+              params: {
+                mode,
+                limit: params.limit,
+                ...(params.collection
+                  ? { collection: params.collection }
+                  : {}),
+              },
             })
           }
         />

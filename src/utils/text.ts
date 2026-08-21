@@ -19,6 +19,21 @@ export function normalize(value: string): string {
 }
 
 /**
+ * Forma comparável de uma referência para **detectar repetida**.
+ *
+ * Diferente de `normalize`, esta **mantém o acento**: "café" e "cafe" são
+ * duas referências distintas e podem coexistir. O que ela ignora é caixa e
+ * espaço nas pontas — "Abandon" e "abandon" são o mesmo cartão.
+ *
+ * O `toLowerCase` do JavaScript entende Unicode; o `lower()` do SQLite só
+ * mexe em A–Z, e por isso a coluna `reference_key` existe em vez de a
+ * consulta comparar `lower(reference)`.
+ */
+export function foldCase(value: string): string {
+  return value.trim().toLowerCase();
+}
+
+/**
  * Letra do rail sob a qual a referência é agrupada. Referências que não
  * começam com A–Z caem em `#`.
  */

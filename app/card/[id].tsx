@@ -14,33 +14,69 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSQLiteContext } from 'expo-sqlite';
 
+import { CollectionDialog } from '@/components/CollectionDialog';
+import { CollectionPicker } from '@/components/CollectionPicker';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { PrimaryButton } from '@/components/PrimaryButton';
-import { BackIcon, StarIcon, TrashIcon } from '@/components/icons';
-import { createCard, deleteCard, getCard, updateCard } from '@/db/cards';
+import {
+  BackIcon,
+  ChevronRightIcon,
+  FolderIcon,
+  StarIcon,
+  TrashIcon,
+} from '@/components/icons';
+import {
+  createCard,
+  deleteCard,
+  findDuplicateReference,
+  getCard,
+  updateCard,
+} from '@/db/cards';
+import { createCollection } from '@/db/collections';
+import { useCollectionTree } from '@/hooks/useCollectionTree';
 import { colors, font, layout, radius } from '@/theme';
 import { letterOf } from '@/utils/text';
 
 export default function EditCardScreen() {
   const db = useSQLiteContext();
   const insets = useSafeAreaInsets();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, collection } = useLocalSearchParams<{
+    id: string;
+    collection?: string;
+  }>();
 
   const isNew = id === 'new';
   const cardId = isNew ? null : Number(id);
 
+  /** Coleção aberta quando o "+" foi tocado — o cartão novo já nasce nela. */
+  const openedIn = Number(collection) || null;
+
+  const { tree, reload: reloadTree } = useCollectionTree();
+
   const [reference, setReference] = useState('');
   const [meaning, setMeaning] = useState('');
+  /** Onde o cartão vai morar. Editável nos dois casos, novo ou existente. */
+  const [collectionId, setCollectionId] = useState<number | null>(openedIn);
   const [focused, setFocused] = useState<'reference' | 'meaning' | null>(null);
   const [saving, setSaving] = useState(false);
   const [askingDiscard, setAskingDiscard] = useState(false);
+  const [picking, setPicking] = useState(false);
+  const [creatingIn, setCreatingIn] = useState<number | null | undefined>(
+    undefined,
+  );
+  /** Outro cartão já salvo com esta mesma referência, se houver. */
+  const [duplicate, setDuplicate] = useState<string | null>(null);
 
   /**
    * O que estava salvo quando a tela abriu. Comparar com isto — e não com
    * string vazia — é o que faz um cartão existente só acusar alteração
    * quando o texto realmente muda.
    */
-  const saved = useRef({ reference: '', meaning: '' });
+  const saved = useRef<{
+    reference: string;
+    meaning: string;
+    collectionId: number | null;
+  }>({ reference: '', meaning: '', collectionId: openedIn });
 
   /** Alvo do "próximo" do teclado quando o foco está na referência. */
   const meaningRef = useRef<TextInput>(null);
@@ -53,7 +89,12 @@ export default function EditCardScreen() {
       if (!active || !card) return;
       setReference(card.reference);
       setMeaning(card.meaning);
-      saved.current = { reference: card.reference, meaning: card.meaning };
+      setCollectionId(card.collectionId);
+      saved.current = {
+        reference: card.reference,
+        meaning: card.meaning,
+        collectionId: card.collectionId,
+      };
     });
 
     return () => {
@@ -62,7 +103,9 @@ export default function EditCardScreen() {
   }, [cardId, db]);
 
   const isDirty =
-    reference !== saved.current.reference || meaning !== saved.current.meaning;
+    reference !== saved.current.reference ||
+    meaning !== saved.current.meaning ||
+    collectionId !== saved.current.collectionId;
 
   /** Voltar sem salvar descarta o que foi digitado — por isso a confirmação. */
   const handleBack = useCallback(() => {
@@ -75,26 +118,70 @@ export default function EditCardScreen() {
 
   const trimmed = reference.trim();
   const trimmedMeaning = meaning.trim();
+
+  /**
+   * Procura outro cartão com a mesma referência enquanto se digita, para o
+   * aviso aparecer antes do toque em Salvar e não como um erro depois dele.
+   *
+   * A comparação ignora caixa mas **respeita o acento**: "café" e "cafe" são
+   * dois cartões diferentes, e os dois podem existir.
+   */
+  useEffect(() => {
+    if (trimmed.length === 0) {
+      setDuplicate(null);
+      return;
+    }
+
+    let active = true;
+
+    findDuplicateReference(db, trimmed, cardId).then((existing) => {
+      if (active) setDuplicate(existing?.reference ?? null);
+    });
+
+    return () => {
+      active = false;
+    };
+  }, [cardId, db, trimmed]);
+
+  /** A coleção escolhida, ou `undefined` quando o cartão fica no Início. */
+  const chosen = collectionId === null ? undefined : tree.byId(collectionId);
+
   // Um cartão sem significado não serve para jogar, então os dois campos são
   // obrigatórios — o botão Salvar e o "OK" do teclado seguem esta mesma regra.
-  const canSave = trimmed.length > 0 && trimmedMeaning.length > 0 && !saving;
+  // Referência repetida bloqueia do mesmo jeito.
+  const canSave =
+    trimmed.length > 0 &&
+    trimmedMeaning.length > 0 &&
+    duplicate === null &&
+    !saving;
 
   const handleSave = useCallback(async () => {
     if (!canSave) return;
     setSaving(true);
 
     try {
+      // O aviso enquanto se digita é assíncrono: digitar depressa e tocar em
+      // Salvar antes de a consulta voltar passaria por ele. Esta é a
+      // verificação que vale.
+      const existing = await findDuplicateReference(db, trimmed, cardId);
+
+      if (existing) {
+        setDuplicate(existing.reference);
+        setSaving(false);
+        return;
+      }
+
       if (cardId === null || Number.isNaN(cardId)) {
-        await createCard(db, reference, meaning);
+        await createCard(db, reference, meaning, collectionId);
       } else {
-        await updateCard(db, cardId, reference, meaning);
+        await updateCard(db, cardId, reference, meaning, collectionId);
       }
       router.back();
     } catch {
       setSaving(false);
       Alert.alert('Não deu para salvar', 'Tente novamente.');
     }
-  }, [canSave, cardId, db, meaning, reference]);
+  }, [canSave, cardId, collectionId, db, meaning, reference, trimmed]);
 
   const handleDelete = useCallback(() => {
     if (cardId === null || Number.isNaN(cardId)) return;
@@ -175,6 +262,12 @@ export default function EditCardScreen() {
             submitBehavior="submit"
             onSubmitEditing={() => meaningRef.current?.focus()}
           />
+
+          {duplicate ? (
+            <Text style={styles.error}>
+              Já existe um cartão “{duplicate}”.
+            </Text>
+          ) : null}
         </View>
 
         <View>
@@ -207,6 +300,30 @@ export default function EditCardScreen() {
               No jogo, o significado deve ser o mais preciso possível.
             </Text>
           </View>
+        </View>
+
+        <View style={styles.collectionField}>
+          <Text style={styles.label}>Coleção</Text>
+
+          <Pressable
+            onPress={() => setPicking(true)}
+            accessibilityRole="button"
+            accessibilityLabel={`Coleção: ${chosen?.name ?? 'Início'}`}
+            accessibilityHint="Toque para escolher outra."
+            style={({ pressed }) => [styles.picker, pressed && styles.pressed]}
+          >
+            <FolderIcon
+              size={24}
+              color={chosen?.color ?? colors.textSecondary}
+            />
+            <Text
+              style={[styles.pickerName, !chosen && styles.pickerNameEmpty]}
+              numberOfLines={1}
+            >
+              {chosen?.name ?? 'Início'}
+            </Text>
+            <ChevronRightIcon size={18} />
+          </Pressable>
         </View>
       </ScrollView>
 
@@ -251,6 +368,40 @@ export default function EditCardScreen() {
           router.back();
         }}
         onCancel={() => setAskingDiscard(false)}
+      />
+
+      <CollectionPicker
+        visible={picking}
+        title="Escolher coleção"
+        subtitle="Onde este cartão vai ficar"
+        confirmLabel="ESCOLHER"
+        tree={tree}
+        startAt={collectionId}
+        onConfirm={(targetId) => {
+          setCollectionId(targetId);
+          setPicking(false);
+        }}
+        onCreateCollection={(parentId) => setCreatingIn(parentId)}
+        onCancel={() => setPicking(false)}
+      />
+
+      {/* Depois da folha no JSX de propósito: criar uma coleção a partir dela
+          abre este modal por cima, e fechar volta para a lista. */}
+      <CollectionDialog
+        visible={creatingIn !== undefined}
+        title="Nova coleção"
+        confirmLabel="CRIAR COLEÇÃO"
+        onConfirm={async (name, color) => {
+          const parentId = creatingIn ?? null;
+          setCreatingIn(undefined);
+
+          const newId = await createCollection(db, name, color, parentId);
+          await reloadTree();
+          // A recém-criada já fica escolhida: criar uma pasta aqui é sempre
+          // para pôr este cartão dentro dela.
+          setCollectionId(newId);
+        }}
+        onCancel={() => setCreatingIn(undefined)}
       />
     </KeyboardAvoidingView>
   );
@@ -350,6 +501,35 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 24,
     color: colors.textProse,
+  },
+  error: {
+    fontFamily: font.bodyBold,
+    fontSize: 13,
+    color: colors.dangerSoft,
+    marginTop: 8,
+  },
+  collectionField: {
+    marginTop: 22,
+  },
+  picker: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    borderWidth: 2,
+    borderColor: colors.border,
+    borderRadius: radius.field,
+    backgroundColor: colors.input,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+  },
+  pickerName: {
+    flex: 1,
+    fontFamily: font.bodyBold,
+    fontSize: 16,
+    color: colors.text,
+  },
+  pickerNameEmpty: {
+    color: colors.textSecondary,
   },
   hint: {
     flexDirection: 'row',

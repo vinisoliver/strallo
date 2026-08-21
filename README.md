@@ -46,8 +46,9 @@ Os dados ficam no aparelho: o app funciona offline por completo.
 - ⬜ Login com Google para armazenar os dados em nuvem
 <br><br>
 
-- ⬜ Adicionar coleções para organizar cartões
-- ⬜ Praticar com coleções de cartões
+- ✅ Coleções para organizar cartões, com coleções dentro de coleções
+- ✅ Seleção múltipla para agrupar, mover, editar e excluir
+- ✅ Praticar só com os cartões de uma coleção
 - ⬜ Compartilhar coleções de cartões
 - ⬜ Salvar coleções de cartões compartilhados
 <br><br>

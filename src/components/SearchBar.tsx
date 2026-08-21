@@ -6,23 +6,29 @@ import { colors, font, radius } from '@/theme';
 type Props = {
   value: string;
   onChangeText: (value: string) => void;
+  /** Muda dentro de uma coleção, onde a busca só olha para o que está ali. */
+  placeholder?: string;
 };
 
-export function SearchBar({ value, onChangeText }: Props) {
+export function SearchBar({
+  value,
+  onChangeText,
+  placeholder = 'Buscar cartão',
+}: Props) {
   return (
     <View style={styles.field}>
       <SearchIcon />
       <TextInput
         value={value}
         onChangeText={onChangeText}
-        placeholder="Buscar cartão"
+        placeholder={placeholder}
         placeholderTextColor={colors.textSecondary}
         style={styles.input}
         autoCorrect={false}
         autoCapitalize="none"
         returnKeyType="search"
         clearButtonMode="while-editing"
-        accessibilityLabel="Buscar cartão"
+        accessibilityLabel={placeholder}
       />
     </View>
   );
