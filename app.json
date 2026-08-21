@@ -6,21 +6,14 @@
     "orientation": "portrait",
     "scheme": "strallo",
     "userInterfaceStyle": "dark",
-    "newArchEnabled": true,
     "backgroundColor": "#131f24",
     "icon": "./assets/icon.png",
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#131f24"
-    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.strallo.app"
     },
     "android": {
       "package": "com.strallo.app",
-      "edgeToEdgeEnabled": true,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#131f24"
@@ -34,7 +27,15 @@
     "plugins": [
       "expo-router",
       "expo-font",
-      "expo-sqlite"
+      "expo-sqlite",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#131f24"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
