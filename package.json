@@ -2,6 +2,7 @@
   "name": "strallo",
   "version": "1.0.0",
   "private": true,
+  "license": "SEE LICENSE IN LICENSE",
   "main": "expo-router/entry",
   "scripts": {
     "start": "expo start",

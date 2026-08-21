@@ -148,3 +148,12 @@ src/
 design/                arquivos-fonte das telas
 scripts/               geração de ícones e capturas
 ```
+
+## Licença
+
+Este projeto é de código aberto para fins educacionais, estudo e uso pessoal.
+A clonagem, inspeção e modificação privada do código são permitidas para uso não comercial.
+O uso comercial, monetização ou redistribuição comercial por terceiros é **estritamente proibido** sem permissão expressa do autor.
+
+Para mais detalhes, consulte o arquivo [LICENSE](LICENSE).
+
