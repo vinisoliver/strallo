@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
 import {
-  Alert,
   Animated,
   Dimensions,
   Easing,
@@ -18,6 +17,7 @@ import { useSQLiteContext } from 'expo-sqlite';
 
 import { GameCard } from '@/components/game/GameCard';
 import { ProgressBar } from '@/components/game/ProgressBar';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { CheckIcon, CloseIcon, CountIcon, TimeIcon } from '@/components/icons';
 import { drawCards, type Card } from '@/db/cards';
@@ -44,6 +44,7 @@ export default function PlayScreen() {
   const [correct, setCorrect] = useState(0);
   const [answered, setAnswered] = useState(0);
   const [secondsLeft, setSecondsLeft] = useState(mode === 'time' ? limit : 0);
+  const [askingExit, setAskingExit] = useState(false);
 
   const startedAt = useRef(Date.now());
   const feedbackIn = useRef(new Animated.Value(0)).current;
@@ -139,18 +140,7 @@ export default function PlayScreen() {
   }
 
   function confirmExit() {
-    Alert.alert(
-      'Encerrar rodada?',
-      'Se você sair agora, seu progresso nesta rodada será perdido.',
-      [
-        { text: 'Continuar jogando', style: 'cancel' },
-        {
-          text: 'Sair da rodada',
-          style: 'destructive',
-          onPress: () => router.dismissAll(),
-        },
-      ],
-    );
+    setAskingExit(true);
   }
 
   const progress =
@@ -331,6 +321,19 @@ export default function PlayScreen() {
           )}
         </View>
       </KeyboardAvoidingView>
+
+      <ConfirmDialog
+        visible={askingExit}
+        title="Encerrar rodada?"
+        message="Se você sair agora, seu progresso nesta rodada será perdido."
+        confirmLabel="Sair da rodada"
+        cancelLabel="Continuar jogando"
+        onConfirm={() => {
+          setAskingExit(false);
+          router.dismissAll();
+        }}
+        onCancel={() => setAskingExit(false)}
+      />
     </View>
   );
 }

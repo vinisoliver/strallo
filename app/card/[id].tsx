@@ -14,6 +14,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSQLiteContext } from 'expo-sqlite';
 
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { BackIcon, StarIcon, TrashIcon } from '@/components/icons';
 import { createCard, deleteCard, getCard, updateCard } from '@/db/cards';
@@ -32,6 +33,14 @@ export default function EditCardScreen() {
   const [meaning, setMeaning] = useState('');
   const [focused, setFocused] = useState<'reference' | 'meaning' | null>(null);
   const [saving, setSaving] = useState(false);
+  const [askingDiscard, setAskingDiscard] = useState(false);
+
+  /**
+   * O que estava salvo quando a tela abriu. Comparar com isto — e não com
+   * string vazia — é o que faz um cartão existente só acusar alteração
+   * quando o texto realmente muda.
+   */
+  const saved = useRef({ reference: '', meaning: '' });
 
   /** Alvo do "próximo" do teclado quando o foco está na referência. */
   const meaningRef = useRef<TextInput>(null);
@@ -44,12 +53,25 @@ export default function EditCardScreen() {
       if (!active || !card) return;
       setReference(card.reference);
       setMeaning(card.meaning);
+      saved.current = { reference: card.reference, meaning: card.meaning };
     });
 
     return () => {
       active = false;
     };
   }, [cardId, db]);
+
+  const isDirty =
+    reference !== saved.current.reference || meaning !== saved.current.meaning;
+
+  /** Voltar sem salvar descarta o que foi digitado — por isso a confirmação. */
+  const handleBack = useCallback(() => {
+    if (isDirty) {
+      setAskingDiscard(true);
+      return;
+    }
+    router.back();
+  }, [isDirty]);
 
   const trimmed = reference.trim();
   const trimmedMeaning = meaning.trim();
@@ -101,7 +123,7 @@ export default function EditCardScreen() {
     >
       <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
         <Pressable
-          onPress={() => router.back()}
+          onPress={handleBack}
           accessibilityRole="button"
           accessibilityLabel="Voltar"
           style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
@@ -214,6 +236,22 @@ export default function EditCardScreen() {
           disabled={!canSave}
         />
       </View>
+      <ConfirmDialog
+        visible={askingDiscard}
+        title="Descartar alterações?"
+        message={
+          isNew
+            ? 'O cartão ainda não foi salvo e será perdido.'
+            : 'As mudanças feitas neste cartão serão perdidas.'
+        }
+        confirmLabel="Descartar"
+        cancelLabel="Continuar editando"
+        onConfirm={() => {
+          setAskingDiscard(false);
+          router.back();
+        }}
+        onCancel={() => setAskingDiscard(false)}
+      />
     </KeyboardAvoidingView>
   );
 }
