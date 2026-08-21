@@ -96,7 +96,12 @@ export default function ResultsScreen() {
         <PrimaryButton
           label="RECOMEÇAR"
           icon={<RestartIcon />}
-          onPress={() => router.replace('/practice')}
+          onPress={() =>
+            router.replace({
+              pathname: '/practice/config',
+              params: { mode, limit: params.limit },
+            })
+          }
         />
       </View>
     </View>
@@ -123,7 +128,7 @@ function pickHeadline(correct: number, answered: number) {
   if (ratio >= 0.5) {
     return { title: 'Boa rodada', subtitle: 'Dá para melhorar na próxima' };
   }
-  return { title: 'Seguimos', subtitle: 'Revisar os erros ajuda a fixar' };
+  return { title: 'Foi looonge', subtitle: 'Revisar os erros ajuda a fixar' };
 }
 
 function formatClock(seconds: number): string {

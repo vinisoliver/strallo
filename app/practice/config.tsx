@@ -16,12 +16,13 @@ import { colors, font, game, layout, radius } from '@/theme';
 
 export default function ConfigScreen() {
   const insets = useSafeAreaInsets();
-  const params = useLocalSearchParams<{ mode: GameMode }>();
+  const params = useLocalSearchParams<{ mode: GameMode; limit?: string }>();
   const mode: GameMode = params.mode === 'count' ? 'count' : 'time';
 
   const settings = MODE_SETTINGS[mode];
   const palette = mode === 'time' ? game.time : game.count;
-  const [value, setValue] = useState<number>(settings.default);
+  const initialValue = Number(params.limit) || settings.default;
+  const [value, setValue] = useState<number>(initialValue);
 
   const canDecrease = value > settings.min;
   const canIncrease = value < settings.max;

@@ -27,8 +27,12 @@ const SCREENS = [
   ['Main.dc.html', 'inicio.png'],
   ['CardMenu.dc.html', 'menu.png'],
   ['EditCard.dc.html', 'editar.png'],
-  ['GameSelect.dc.html', 'jogo-modo.png'],
+  ['GameSelect.dc.html', 'jogo-inicio.png'],
+  ['GameConfig.dc.html', 'jogo-configuracoes.png'],
+  ['GameConfigCount.dc.html', 'jogo-configuracoes-2.png'],
   ['Playing.dc.html', 'jogo-jogando.png'],
+  ['AnswerCorrect.dc.html', 'jogo-resposta-certa.png'],
+  ['AnswerWrong.dc.html', 'jogo-resposta-errada.png'],
   ['Results.dc.html', 'jogo-resultado.png'],
 ];
 

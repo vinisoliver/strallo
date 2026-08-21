@@ -68,10 +68,12 @@ export default function ChooseModeScreen() {
             </View>
           </View>
 
-          <Text style={styles.count}>
+          <View style={styles.countRow}>
             <Text style={styles.countNumber}>{total}</Text>
-            {total === 1 ? ' cartão pronto' : ' cartões prontos'}
-          </Text>
+            <Text style={styles.countText}>
+              {total === 1 ? 'cartão pronto' : 'cartões prontos'}
+            </Text>
+          </View>
         </View>
       </View>
 
@@ -251,14 +253,20 @@ const styles = StyleSheet.create({
     color: colors.text,
     paddingHorizontal: 12,
   },
-  count: {
-    fontFamily: font.bodyBold,
-    fontSize: 16,
-    color: colors.textSecondary,
+  countRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 6,
   },
   countNumber: {
     fontFamily: font.bodyBlack,
+    fontSize: 16,
     color: colors.primary,
+  },
+  countText: {
+    fontFamily: font.bodyBold,
+    fontSize: 16,
+    color: colors.textSecondary,
   },
   footer: {
     paddingHorizontal: layout.gutter,

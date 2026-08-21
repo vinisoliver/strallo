@@ -16,9 +16,9 @@ Aplicativo de flashcards para memorização, com prática.
 
 <img src="docs/screens/inicio.png" width="230" alt="Tela inicial">
 &nbsp;
-<img src="docs/screens/menu.png" width="230" alt="Menu do cartão">
+<img src="docs/screens/jogo-jogando.png" width="230" alt="Em jogo">
 &nbsp;
-<img src="docs/screens/editar.png" width="230" alt="Editar cartão">
+<img src="docs/screens/jogo-resultado.png" width="230" alt="Resultado da rodada">
 
 </div>
 
@@ -37,9 +37,31 @@ Os dados ficam no aparelho: o app funciona offline por completo.
 - ✅ Busca por referência e por significado, ignorando acentos
 - ✅ Criar, editar e excluir cartões
 - ✅ Armazenamento local em SQLite, com migrações
-- ✅ Modo de estudo por tempo ou por quantidade
+<br><br>
+
+- ✅ Modo de prática por tempo ou por quantidade de cartões
+- ✅ Tela de resultados com estatísticas de tempo, acertos e erros após o jogo
+<br><br>
+
+- ⬜ Login com Google para armazenar os dados em nuvem
+<br><br>
+
+- ⬜ Adicionar coleções para organizar cartões
+- ⬜ Praticar com coleções de cartões
+- ⬜ Compartilhar coleções de cartões
+- ⬜ Salvar coleções de cartões compartilhados
+<br><br>
+
+- ⬜ Anexo de imagem para referência do cartão
+<br><br>
+
 - ⬜ Correção do significado por IA, aceitando respostas aproximadas
-- ✅ Tela de resultados com acertos, erros e tempo
+- ⬜ Responder no jogo com o microfone
+<br><br>
+
+- ⬜ Adicionar frases de exemplo para cada cartão
+- ⬜ Modo de jogo usando frases
+
 
 ## Tecnologias
 
@@ -61,15 +83,31 @@ tokens de [`src/theme.ts`](src/theme.ts).
 As telas foram desenhadas antes de codadas. Os arquivos-fonte estão em
 [`design/`](design/), e as imagens acima saem direto deles.
 
-O fluxo de estudo já está desenhado, mas ainda não implementado:
-
 <div align="center">
 
-<img src="docs/screens/jogo-modo.png" width="180" alt="Escolher modo">
+<img src="docs/screens/inicio.png" width="160" alt="Inicio">
 &nbsp;
-<img src="docs/screens/jogo-jogando.png" width="180" alt="Jogando">
+<img src="docs/screens/menu.png" width="160" alt="Menu de seleção do cartão">
 &nbsp;
-<img src="docs/screens/jogo-resultado.png" width="180" alt="Resultado">
+<img src="docs/screens/editar.png" width="160" alt="Editar cartão">
+
+<br><br>
+
+<img src="docs/screens/jogo-inicio.png" width="160" alt="Escolher modo">
+&nbsp;
+<img src="docs/screens/jogo-configuracoes.png" width="160" alt="Configuração por tempo">
+&nbsp;
+<img src="docs/screens/jogo-configuracoes-2.png" width="160" alt="Configuração por quantidade">
+&nbsp;
+<img src="docs/screens/jogo-jogando.png" width="160" alt="Em jogo">
+
+<br><br>
+
+<img src="docs/screens/jogo-resposta-certa.png" width="160" alt="Resposta certa">
+&nbsp;
+<img src="docs/screens/jogo-resposta-errada.png" width="160" alt="Resposta errada">
+&nbsp;
+<img src="docs/screens/jogo-resultado.png" width="160" alt="Resultado da rodada">
 
 </div>
 
@@ -97,6 +135,11 @@ npx --yes --package eas-cli eas build --platform android --profile preview
 app/                 rotas (expo-router)
   index.tsx            tela inicial
   card/[id].tsx        adicionar e editar cartão
+  practice/
+    index.tsx          escolher modo de prática
+    config.tsx         configurar tempo ou quantidade
+    play.tsx           rodada de prática em andamento
+    results.tsx        resultado da rodada
 src/
   theme.ts             tokens do design
   db/                  migrações e acesso aos cartões

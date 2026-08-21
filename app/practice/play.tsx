@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
 import {
+  Alert,
   Animated,
+  Dimensions,
   Easing,
   KeyboardAvoidingView,
   Platform,
@@ -46,6 +48,16 @@ export default function PlayScreen() {
   const startedAt = useRef(Date.now());
   const feedbackIn = useRef(new Animated.Value(0)).current;
   const inputRef = useRef<TextInput>(null);
+
+  const initialWindowHeight = useRef(Dimensions.get('window').height).current;
+  const topHeaderHeight = insets.top + 113;
+  const footerHeight = 135 + Math.max(insets.bottom, 16);
+  const cardContentHeight = 261;
+  const availableSpace = initialWindowHeight - topHeaderHeight - footerHeight;
+  const cardTopPadding = Math.max(
+    16,
+    Math.round((availableSpace - cardContentHeight) / 2),
+  );
 
   // Baralho: no modo por quantidade já vem cortado no tamanho pedido.
   useEffect(() => {
@@ -114,7 +126,6 @@ export default function PlayScreen() {
       useNativeDriver: true,
     }).start();
   }
-
   function next() {
     // Modo por quantidade: acabou o baralho, acabou a rodada.
     if (mode === 'count' && answered >= deck.length) {
@@ -125,182 +136,202 @@ export default function PlayScreen() {
     setPhase('asking');
     setAnswer('');
     setIndex((value) => value + 1);
+  }
 
-    // Devolve o foco depois que o cartão terminou de entrar.
-    setTimeout(() => inputRef.current?.focus(), CARD_SWAP_MS);
+  function confirmExit() {
+    Alert.alert(
+      'Encerrar rodada?',
+      'Se você sair agora, seu progresso nesta rodada será perdido.',
+      [
+        { text: 'Continuar jogando', style: 'cancel' },
+        {
+          text: 'Sair da rodada',
+          style: 'destructive',
+          onPress: () => router.dismissAll(),
+        },
+      ],
+    );
   }
 
   const progress =
     mode === 'count' && deck.length > 0 ? answered / deck.length : 0;
 
   const palette = wasCorrect ? game.correct : game.wrong;
+  const modePalette = mode === 'time' ? game.time : game.count;
 
   return (
-    <KeyboardAvoidingView
-      style={styles.screen}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <View style={[styles.hud, { paddingTop: insets.top + 10 }]}>
-        <Pressable
-          onPress={() => router.dismissAll()}
-          accessibilityRole="button"
-          accessibilityLabel="Sair da rodada"
-          style={({ pressed }) => [styles.close, pressed && styles.pressed]}
-        >
-          <CloseIcon size={20} />
-        </Pressable>
+    <View style={styles.screen}>
+      <View style={styles.content}>
+        <View style={[styles.hud, { paddingTop: insets.top + 10 }]}>
+          <Pressable
+            onPress={confirmExit}
+            accessibilityRole="button"
+            accessibilityLabel="Sair da rodada"
+            style={({ pressed }) => [styles.close, pressed && styles.pressed]}
+          >
+            <CloseIcon size={20} />
+          </Pressable>
 
-        <ProgressBar
-          progress={progress}
-          animateToEndIn={mode === 'time' ? secondsLeft * 1000 : undefined}
-          paused={phase === 'feedback'}
-        />
-      </View>
-
-      <View style={styles.counters}>
-        <View style={[styles.counter, { backgroundColor: game.time.tint }]}>
-          {mode === 'time' ? <TimeIcon size={20} /> : <CountIcon size={20} />}
-          <Text style={[styles.counterText, { color: game.time.soft }]}>
-            {mode === 'time'
-              ? formatClock(secondsLeft)
-              : `${Math.min(answered + 1, deck.length || 1)} / ${deck.length}`}
-          </Text>
-        </View>
-
-        <View style={[styles.counter, { backgroundColor: game.correct.tint }]}>
-          <CheckIcon size={20} color={game.correct.main} />
-          <Text style={[styles.counterText, { color: game.correct.soft }]}>
-            {correct} {correct === 1 ? 'acerto' : 'acertos'}
-          </Text>
-        </View>
-      </View>
-
-      <View style={styles.cardArea}>
-        {phase === 'asking' ? (
-          <Text style={styles.prompt}>Qual o significado?</Text>
-        ) : null}
-
-        {card ? (
-          <GameCard
-            card={card}
-            status={
-              phase === 'feedback' ? (wasCorrect ? 'correct' : 'wrong') : 'idle'
-            }
+          <ProgressBar
+            progress={progress}
+            animateToEndIn={mode === 'time' ? secondsLeft * 1000 : undefined}
+            paused={phase === 'feedback'}
           />
-        ) : (
-          <View style={styles.placeholder} />
-        )}
+        </View>
+
+        <View style={styles.counters}>
+          <View style={[styles.counter, { backgroundColor: modePalette.tint }]}>
+            {mode === 'time' ? (
+              <TimeIcon size={20} color={modePalette.main} />
+            ) : (
+              <CountIcon size={20} color={modePalette.main} />
+            )}
+            <Text style={[styles.counterText, { color: modePalette.soft }]}>
+              {mode === 'time'
+                ? formatClock(secondsLeft)
+                : `${Math.min(answered + 1, deck.length || 1)} / ${deck.length}`}
+            </Text>
+          </View>
+
+          <View style={[styles.counter, { backgroundColor: game.correct.tint }]}>
+            <CheckIcon size={20} color={game.correct.main} />
+            <Text style={[styles.counterText, { color: game.correct.soft }]}>
+              {correct} {correct === 1 ? 'acerto' : 'acertos'}
+            </Text>
+          </View>
+        </View>
+
+        <View style={[styles.cardArea, { paddingTop: cardTopPadding }]}>
+          {phase === 'asking' ? (
+            <Text style={styles.prompt}>Qual o significado?</Text>
+          ) : null}
+
+          {card ? (
+            <GameCard
+              card={card}
+              status={
+                phase === 'feedback' ? (wasCorrect ? 'correct' : 'wrong') : 'idle'
+              }
+            />
+          ) : (
+            <View style={styles.placeholder} />
+          )}
+        </View>
       </View>
 
-      {/* Campo e veredito ocupam o mesmo espaço: o botão não muda de lugar. */}
-      <View
-        style={[
-          styles.bottom,
-          { paddingBottom: Math.max(insets.bottom, 16) + 10 },
-        ]}
+      {/* Campo e veredito ocupam o footer fixado que sobe com o teclado */}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={styles.footerWrapper}
       >
-        {phase === 'asking' ? (
-          <>
-            <TextInput
-              ref={inputRef}
-              value={answer}
-              onChangeText={setAnswer}
-              placeholder="Digite o significado"
-              placeholderTextColor={colors.textSecondary}
-              style={styles.input}
-              autoCapitalize="none"
-              autoCorrect={false}
-              autoFocus
-              returnKeyType="done"
-              submitBehavior="blurAndSubmit"
-              onSubmitEditing={submit}
-            />
-            <View style={styles.buttonRow}>
-              <PrimaryButton
-                label="RESPONDER"
-                onPress={submit}
-                disabled={answer.trim().length === 0}
+        <View
+          style={[
+            styles.bottom,
+            { paddingBottom: Math.max(insets.bottom, 16) + 10 },
+          ]}
+        >
+          {phase === 'asking' ? (
+            <>
+              <TextInput
+                ref={inputRef}
+                value={answer}
+                onChangeText={setAnswer}
+                placeholder="Digite o significado"
+                placeholderTextColor={colors.textSecondary}
+                style={styles.input}
+                autoCapitalize="none"
+                autoCorrect={false}
+                returnKeyType="done"
+                submitBehavior="blurAndSubmit"
+                onSubmitEditing={submit}
               />
-            </View>
-          </>
-        ) : (
-          <>
-            <Animated.View
-              style={{
-                opacity: feedbackIn,
-                transform: [
-                  {
-                    translateY: feedbackIn.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [10, 0],
-                    }),
-                  },
-                ],
-              }}
-            >
-              {wasCorrect ? (
-                <View
-                  style={[
-                    styles.verdict,
+              <View style={styles.buttonRow}>
+                <PrimaryButton
+                  label="RESPONDER"
+                  onPress={submit}
+                  disabled={answer.trim().length === 0}
+                />
+              </View>
+            </>
+          ) : (
+            <>
+              <Animated.View
+                style={{
+                  opacity: feedbackIn,
+                  transform: [
                     {
-                      backgroundColor: palette.tint,
-                      borderColor: palette.border,
+                      translateY: feedbackIn.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [10, 0],
+                      }),
                     },
-                  ]}
-                >
+                  ],
+                }}
+              >
+                {wasCorrect ? (
                   <View
-                    style={[styles.badge, { backgroundColor: palette.main }]}
+                    style={[
+                      styles.verdict,
+                      {
+                        backgroundColor: palette.tint,
+                        borderColor: palette.border,
+                      },
+                    ]}
                   >
-                    <CheckIcon size={20} color={palette.on} />
-                  </View>
-                  <Text style={[styles.verdictTitle, { color: palette.soft }]}>
-                    Certo!
-                  </Text>
-                </View>
-              ) : (
-                <View
-                  style={[
-                    styles.verdictWrong,
-                    {
-                      backgroundColor: palette.tint,
-                      borderColor: palette.border,
-                    },
-                  ]}
-                >
-                  <View style={styles.verdictRow}>
                     <View
                       style={[styles.badge, { backgroundColor: palette.main }]}
                     >
-                      <CloseIcon size={19} color={palette.on} />
+                      <CheckIcon size={20} color={palette.on} />
                     </View>
-                    <Text style={styles.wrote}>
-                      Você escreveu <Text style={styles.struck}>{given}</Text>
+                    <Text style={[styles.verdictTitle, { color: palette.soft }]}>
+                      Certo!
                     </Text>
                   </View>
+                ) : (
+                  <View
+                    style={[
+                      styles.verdictWrong,
+                      {
+                        backgroundColor: palette.tint,
+                        borderColor: palette.border,
+                      },
+                    ]}
+                  >
+                    <View style={styles.verdictRow}>
+                      <View
+                        style={[styles.badge, { backgroundColor: palette.main }]}
+                      >
+                        <CloseIcon size={19} color={palette.on} />
+                      </View>
+                      <Text style={styles.wrote}>
+                        Você escreveu <Text style={styles.struck}>{given}</Text>
+                      </Text>
+                    </View>
 
-                  <View style={styles.answerBlock}>
-                    <Text style={[styles.answerLabel, { color: palette.soft }]}>
-                      Resposta
-                    </Text>
-                    <Text style={styles.answerText}>{card?.meaning}</Text>
+                    <View style={styles.answerBlock}>
+                      <Text style={[styles.answerLabel, { color: palette.soft }]}>
+                        Resposta
+                      </Text>
+                      <Text style={styles.answerText}>{card?.meaning}</Text>
+                    </View>
                   </View>
-                </View>
-              )}
-            </Animated.View>
+                )}
+              </Animated.View>
 
-            <View style={styles.buttonRow}>
-              <PrimaryButton
-                label="CONTINUAR"
-                onPress={next}
-                color={palette.main}
-                shadow={palette.shadow}
-                textColor={palette.on}
-              />
-            </View>
-          </>
-        )}
-      </View>
-    </KeyboardAvoidingView>
+              <View style={styles.buttonRow}>
+                <PrimaryButton
+                  label="CONTINUAR"
+                  onPress={next}
+                  color={palette.main}
+                  shadow={palette.shadow}
+                  textColor={palette.on}
+                />
+              </View>
+            </>
+          )}
+        </View>
+      </KeyboardAvoidingView>
+    </View>
   );
 }
 
@@ -312,6 +343,17 @@ function formatClock(seconds: number): string {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
+  content: { flex: 1 },
+  footerWrapper: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: colors.bg,
+    borderTopWidth: 1,
+    borderTopColor: colors.borderDim,
+    paddingTop: 12,
+  },
   hud: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -345,9 +387,7 @@ const styles = StyleSheet.create({
   },
   counterText: { fontFamily: font.display, fontSize: 19, lineHeight: 25 },
   cardArea: {
-    flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
     paddingHorizontal: 24,
   },
   prompt: {
@@ -359,7 +399,11 @@ const styles = StyleSheet.create({
     marginBottom: 18,
   },
   placeholder: { width: '100%', height: 230 },
-  bottom: { paddingHorizontal: layout.gutter, gap: 14 },
+  bottom: {
+    paddingHorizontal: layout.gutter,
+    gap: 14,
+    backgroundColor: colors.bg,
+  },
   // O botão tem flex:1 para dividir uma linha; sozinho numa coluna ele
   // precisa desta linha própria para não ser espremido.
   buttonRow: { flexDirection: 'row' },
