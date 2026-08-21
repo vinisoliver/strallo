@@ -8,7 +8,7 @@
 <x-dc>
 <helmet>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&amp;family=Nunito:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; scrollbar-width:none; }
     *::-webkit-scrollbar { display:none; }
@@ -21,16 +21,18 @@
 <div class="phone">
 
   <!-- Close -->
-  <div style="padding:34px 18px 0 18px;">
-    <button style="width:42px; height:42px; border-radius:12px; background:#1f2c33; border:none; display:flex; align-items:center; justify-content:center; cursor:pointer;">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="#7d929c" stroke-width="2.6" stroke-linecap="round"/></svg>
-    </button>
-  </div>
+  
 
   <!-- Selected mode chip (moved up, darker) -->
-  <div style="display:flex; justify-content:center; margin-top:18px;">
+  <div style="display:flex; align-items:center; justify-content:space-between; padding:34px 18px 12px 18px;">
+    <button style="width:42px; height:42px; border-radius:12px; background:#1f2c33; border:none; display:flex; align-items:center; justify-content:center; cursor:pointer;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="#7d929c" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+    </button>
+    <h1 class="display" style="margin:0; font-size:20px; font-weight:800; color:#f1f7fb;">Praticar</h1>
+    <div style="width:42px;"></div>
+  </div><div style="display:flex; justify-content:center; margin-top:18px;">
     <div style="display:flex; align-items:center; gap:12px; background:#123543; border:2px solid #1c556b; border-radius:18px; padding:12px 20px;">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="13" r="8" stroke="#4bc0f0" stroke-width="2.4"/><path d="M12 9v4l2.5 2M9 3h6" stroke="#4bc0f0" stroke-width="2.4" stroke-linecap="round"/></svg>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="13" r="8" stroke="#4bc0f0" stroke-width="2.4"></circle><path d="M12 9v4l2.5 2M9 3h6" stroke="#4bc0f0" stroke-width="2.4" stroke-linecap="round"></path></svg>
       <span style="font-family:'Baloo 2',sans-serif; font-size:19px; font-weight:800; color:#8fd9f2;">Por tempo</span>
     </div>
   </div>
@@ -44,7 +46,7 @@
   <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:26px;">
     <div style="display:flex; align-items:center; gap:24px;">
       <button style="width:64px; height:64px; border-radius:20px; background:#1f2c33; border:2px solid #37464f; border-bottom-width:5px; display:flex; align-items:center; justify-content:center; cursor:pointer;">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M5 12h14" stroke="#7d929c" stroke-width="3.2" stroke-linecap="round"/></svg>
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M5 12h14" stroke="#7d929c" stroke-width="3.2" stroke-linecap="round"></path></svg>
       </button>
 
       <div style="text-align:center; min-width:120px;">
@@ -53,7 +55,7 @@
       </div>
 
       <button style="width:64px; height:64px; border-radius:20px; background:#4bc0f0; box-shadow:0 5px 0 #2a94c4; border:none; display:flex; align-items:center; justify-content:center; cursor:pointer;">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#0c2731" stroke-width="3.2" stroke-linecap="round"/></svg>
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#0c2731" stroke-width="3.2" stroke-linecap="round"></path></svg>
       </button>
     </div>
     <div style="font-size:14px; font-weight:700; color:#556670;">ajuste de 5 em 5 segundos</div>
@@ -66,7 +68,7 @@
 
 </div>
 
-<script data-dc-script data-props='{}'>
+<script data-dc-script="" data-props="{}">
 class Component extends DCLogic {
   renderVals() { return {}; }
 }

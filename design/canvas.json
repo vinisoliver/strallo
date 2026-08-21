@@ -98,6 +98,69 @@
       "h": 844,
       "title": "5 · Resultado",
       "page": "jogo"
+    },
+    {
+      "file": "ConfirmDialog.dc.html",
+      "x": 3290,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "6 · Confirmação (padrão)",
+      "page": "jogo"
+    },
+    {
+      "file": "CollectionsHome.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "1 · Início com coleções",
+      "page": "colecoes"
+    },
+    {
+      "file": "SelectMode.dc.html",
+      "x": 470,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "2 · Seleção múltipla",
+      "page": "colecoes"
+    },
+    {
+      "file": "CreateCollection.dc.html",
+      "x": 940,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "3 · Criar coleção",
+      "page": "colecoes"
+    },
+    {
+      "file": "MoveToCollection.dc.html",
+      "x": 1410,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "4a · Mover (caminho)",
+      "page": "colecoes"
+    },
+    {
+      "file": "InsideCollection.dc.html",
+      "x": 2820,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "5 · Dentro da coleção",
+      "page": "colecoes"
+    },
+    {
+      "file": "MoveToCollectionV1.dc.html",
+      "x": 2350,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "4b · Mover (recuo, v1)",
+      "page": "colecoes"
     }
   ],
   "annotations": [
@@ -112,7 +175,7 @@
   ],
   "launch": {
     "view": "canvas",
-    "page": "jogo"
+    "page": "colecoes"
   },
   "pages": [
     {
@@ -126,6 +189,10 @@
     {
       "id": "jogo",
       "name": "Fluxo Jogo"
+    },
+    {
+      "id": "colecoes",
+      "name": "Fluxo Coleções"
     }
   ]
 }

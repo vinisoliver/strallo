@@ -1,0 +1,176 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&amp;family=Nunito:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; scrollbar-width:none; }
+    *::-webkit-scrollbar { display:none; }
+    body { margin:0; font-family:'Nunito',system-ui,sans-serif; color:#f1f7fb; -webkit-font-smoothing:antialiased; }
+    .phone { width:390px; height:844px; background:#131f24; position:relative; overflow:hidden; display:flex; flex-direction:column; }
+    .display { font-family:'Baloo 2','Nunito',system-ui,sans-serif; }
+    .scroll { overflow-y:auto; overflow-x:hidden; }
+    .tile { height:104px; border:2px solid #37464f; border-bottom-width:4px; border-radius:18px; background:#1f2c33; position:relative; display:flex; align-items:center; justify-content:center; padding:10px; }
+    .tile.sel { border-color:#ffc800; }
+    .letter { position:absolute; top:9px; left:11px; font-size:11px; font-weight:800; color:#ffc800; }
+    .ref { font-weight:800; font-size:19px; color:#f1f7fb; }
+    /* Caixa de seleção: presente em todos, marcada só nos escolhidos */
+    .box { position:absolute; top:9px; right:11px; width:24px; height:24px; border-radius:8px; border:2px solid #55666f; background:rgba(19,31,36,.6); }
+    .box.on { border-color:#ffc800; background:#ffc800; display:flex; align-items:center; justify-content:center; }
+    .folder { height:104px; border:2px solid #37464f; border-bottom-width:4px; border-radius:18px; background:#1f2c33; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; padding:10px; }
+    /* Aqui a caixa toma o canto, então o ícone anda junto do nome */
+    .frow { display:flex; align-items:center; gap:7px; }
+    .fname { font-weight:800; font-size:17px; color:#f1f7fb; text-align:center; }
+    .fcount { font-size:11px; font-weight:700; color:#7d929c; }
+    .action { flex:1; display:flex; flex-direction:column; align-items:center; gap:6px; background:none; border:none; cursor:pointer; padding:4px 0; }
+    /* O rail continua ativo: dá para pular letras enquanto seleciona */
+    .rail { font-size:13px; font-weight:700; color:#46565f; height:22px; display:flex; align-items:center; }
+    .rail.on { font-weight:800; color:#c7d3d9; }
+    .alabel { font-size:11px; font-weight:800; letter-spacing:.3px; color:#c7d3d9; }
+  </style>
+</helmet>
+
+<div class="phone">
+
+  <!-- Cabeçalho do modo seleção: quantos, e como sair -->
+  <div style="display:flex; align-items:center; justify-content:space-between; padding:34px 18px 12px 18px;">
+    <div style="display:flex; align-items:center; gap:14px;">
+      <button style="width:42px; height:42px; border-radius:12px; background:#1f2c33; border:none; display:flex; align-items:center; justify-content:center; cursor:pointer;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="#7d929c" stroke-width="2.6" stroke-linecap="round"></path></svg>
+      </button>
+      <span class="display" style="font-size:20px; font-weight:800; color:#f1f7fb;">3 selecionados</span>
+    </div>
+    <button style="background:none; border:none; cursor:pointer; font-family:'Nunito',sans-serif; font-size:14px; font-weight:800; color:#ffc800;">Todos</button>
+  </div>
+
+  <!-- Grade sem escurecer: tudo continua legível e tocável -->
+  <div style="flex:1; display:flex; overflow:hidden; position:relative;">
+
+    <div class="scroll" style="flex:1; padding:6px 6px 16px 18px;">
+      <div style="display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:13px;">
+
+        <div class="tile sel">
+          <span class="letter">A</span>
+          <span class="box on"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7" stroke="#2b2317" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
+          <span class="ref">Abandon</span>
+        </div>
+
+        <div class="tile">
+          <span class="box"></span>
+          <span class="ref">Ability</span>
+        </div>
+
+        <div class="tile sel">
+          <span class="box on"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7" stroke="#2b2317" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
+          <span class="ref">Absent</span>
+        </div>
+
+        <div class="tile">
+          <span class="letter">B</span>
+          <span class="box"></span>
+          <span class="ref">Balance</span>
+        </div>
+
+        <!-- Coleções também entram na seleção -->
+        <div class="folder" style="border-bottom-color:#4bc0f0;">
+          <span class="letter">I</span>
+          <span class="box"></span>
+          <span class="frow">
+            
+            <span class="fname">Irregulares</span>
+          </span>
+          
+        </div>
+
+        <div class="tile sel">
+          <span class="letter">C</span>
+          <span class="box on"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7" stroke="#2b2317" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
+          <span class="ref">Courage</span>
+        </div>
+
+        <div class="tile">
+          <span class="box"></span>
+          <span class="ref">Culture</span>
+        </div>
+
+        <div class="tile">
+          <span class="letter">D</span>
+          <span class="box"></span>
+          <span class="ref">Delight</span>
+        </div>
+
+      </div>
+    </div>
+
+    <div style="width:44px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:10px 0;">
+      <div style="width:28px; height:28px; border-radius:9px; background:#ffc800; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:800; color:#2b2317;">A</div>
+      <span class="rail on">B</span>
+      <span class="rail on">C</span>
+      <span class="rail on">D</span>
+      <span class="rail">E</span>
+      <span class="rail">F</span>
+      <span class="rail">G</span>
+      <span class="rail">H</span>
+      <span class="rail on">I</span>
+      <span class="rail">J</span>
+      <span class="rail">K</span>
+      <span class="rail">L</span>
+      <span class="rail">M</span>
+      <span class="rail">N</span>
+      <span class="rail">O</span>
+      <span class="rail">P</span>
+      <span class="rail">Q</span>
+      <span class="rail">R</span>
+      <span class="rail">S</span>
+      <span class="rail">T</span>
+      <span class="rail">U</span>
+      <span class="rail">V</span>
+      <span class="rail">W</span>
+      <span class="rail">X</span>
+      <span class="rail">Y</span>
+      <span class="rail">Z</span>
+    </div>
+  </div>
+
+  <!-- Barra fixa das ações. Agrupar só existe com 2 ou mais. -->
+  <div style="display:flex; align-items:flex-start; gap:4px; padding:14px 12px 26px 12px; border-top:2px solid #22303a; background:#182229;">
+
+    <button class="action">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M3 7.5a2 2 0 0 1 2-2h3.6l1.9 2.2H19a2 2 0 0 1 2 2v7.8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7.5z" stroke="#ffc800" stroke-width="2" stroke-linejoin="round"></path><path d="M12 11v5M9.5 13.5h5" stroke="#ffc800" stroke-width="2" stroke-linecap="round"></path></svg>
+      <span class="alabel" style="color:#ffc800;">Agrupar</span>
+    </button>
+
+    <button class="action">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M3 7.5a2 2 0 0 1 2-2h3.6l1.9 2.2H19a2 2 0 0 1 2 2v7.8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7.5z" stroke="#c7d3d9" stroke-width="2" stroke-linejoin="round"></path><path d="M9.5 13.5h5.5M13 11.5l2 2-2 2" stroke="#c7d3d9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+      <span class="alabel">Mover</span>
+    </button>
+
+    <!-- Editar fica apagado: só serve para um cartão -->
+    <button class="action" style="opacity:.35;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M14.5 4.5l5 5L8 21H3v-5L14.5 4.5z" stroke="#c7d3d9" stroke-width="2.2" stroke-linejoin="round"></path><path d="M13 6l5 5" stroke="#c7d3d9" stroke-width="2.2"></path></svg>
+      <span class="alabel">Editar</span>
+    </button>
+
+    <button class="action">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5 7h14M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M7 7l1 13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1l1-13" stroke="#ff6b6b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+      <span class="alabel" style="color:#ff8f8f;">Excluir</span>
+    </button>
+
+  </div>
+
+</div>
+
+<script data-dc-script="" data-props="{}">
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</x-dc>
+</body>
+</html>
