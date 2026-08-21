@@ -42,20 +42,20 @@ A skill é `/design` (o `<skill>` acima é o diretório-base dela).
 
 **Marca** — `Logo.dc.html`
 
-**Fluxo Início** — `Main` (grade) · `CardMenu` (segurar) · `EditCard`
+**Fluxo Início** — `Main` (grade) · `EditCard`
 
 **Fluxo Jogo** — `GameSelect` · `GameConfig` (tempo) ·
 `GameConfigCount` (quantidade) · `Playing` · `AnswerCorrect` ·
 `AnswerWrong` · `Results` · `ConfirmDialog` (padrão de confirmação)
 
 **Fluxo Coleções** — `CollectionsHome` · `SelectMode` ·
-`CreateCollection` · `MoveToCollection` (4a) ·
-`MoveToCollectionV1` (4b) · `InsideCollection`
+`CreateCollection` · `MoveToCollection` · `InsideCollection`
 
-> **Decisão pendente:** as artboards 4a e 4b são **duas propostas para a
-> mesma tela** de mover, deixadas lado a lado para comparação. 4a navega
-> por níveis com o caminho abaixo da busca; 4b mostra a árvore inteira
-> com recuo. O Vinícius ainda não escolheu — pergunte antes de codar.
+> A tela de mover foi decidida: **navegação por níveis**, com o caminho
+> logo abaixo do topo da folha e as linhas sem recuo. A proposta
+> alternativa (árvore com recuo) foi descartada.
+> `CardMenu` também saiu: o menu de um cartão só foi substituído pela
+> seleção múltipla.
 
 ---
 
@@ -182,9 +182,12 @@ quadradinhos (grade 5×2); a escolhida ganha anel branco.
 Cores: `#ffc800` `#ff9f45` `#ff6b6b` `#ff7eb6` `#c084fc` `#8b9dff`
 `#4bc0f0` `#3fd9c0` `#7ad13a` `#c3e04a`
 
-**Mover** — modal listando as coleções, com botão para criar uma nova
-(abre o modal de criação e **volta** para a lista). Ver a decisão
-pendente entre 4a e 4b.
+**Mover** — folha com as coleções **de um nível por vez**, sem recuo, e
+o caminho ("Início › Verbos › Irregulares") logo abaixo do topo: é por
+ele que se navega de volta. Tocar numa linha entra nela; o botão
+**MOVER** confirma o destino que o caminho aponta. Tem também um botão
+para criar uma coleção nova, que abre o modal de criação e **volta**
+para a lista.
 
 **Toast** — depois de mover, aparece embaixo: "3 itens movidos para
 **Verbos**", com "Desfazer".
@@ -203,7 +206,6 @@ pendente entre 4a e 4b.
 
 ### O que ainda não foi decidido
 
-- Qual das duas telas de mover (4a ou 4b).
 - Modelo de dados: sugestão é uma tabela `collections` com
   `parent_id` (árvore) e `collection_id` em `cards`, mas nada foi
   combinado com o Vinícius.

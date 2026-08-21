@@ -1,30 +1,12 @@
 {
   "artboards": [
     {
-      "file": "Logo.dc.html",
-      "x": 0,
-      "y": 0,
-      "w": 820,
-      "h": 520,
-      "title": "Lampi · Marca",
-      "page": "marca"
-    },
-    {
       "file": "Main.dc.html",
       "x": 0,
       "y": 0,
       "w": 390,
       "h": 844,
       "title": "1 · Grade de cards",
-      "page": "inicio"
-    },
-    {
-      "file": "CardMenu.dc.html",
-      "x": 470,
-      "y": 0,
-      "w": 390,
-      "h": 844,
-      "title": "2 · Segurar (menu)",
       "page": "inicio"
     },
     {
@@ -146,30 +128,20 @@
     },
     {
       "file": "InsideCollection.dc.html",
-      "x": 2820,
-      "y": 0,
+      "x": 1876,
+      "y": 7,
       "w": 390,
       "h": 844,
       "title": "5 · Dentro da coleção",
       "page": "colecoes"
     },
     {
-      "file": "MoveToCollectionV1.dc.html",
-      "x": 2350,
-      "y": 0,
-      "w": 390,
-      "h": 844,
-      "title": "4b · Mover (recuo, v1)",
-      "page": "colecoes"
-    }
-  ],
-  "annotations": [
-    {
-      "id": "nota-marca",
+      "file": "Logo.dc.html",
       "x": 0,
-      "y": -96,
-      "w": 560,
-      "text": "MARCA · STRALLO\nLogotipo: a palavra 'strallo' desenhada à mão, toda amarela, começando pelo 'st'. O 'st' sozinho serve de símbolo/ícone. Versão mono para fundo claro.",
+      "y": 0,
+      "w": 820,
+      "h": 520,
+      "title": "Lampi · Marca",
       "page": "marca"
     }
   ],
