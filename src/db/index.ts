@@ -158,6 +158,28 @@ export const MIGRATIONS: Migration[] = [
       );
     `);
   },
+  // Notas do cartão: até seis linhas curtas presas a ele.
+  //
+  // `marks` guarda os trechos sublinhados como pares [inicio, fim) em JSON, e
+  // não marcação no meio do texto. Assim `text` continua sendo exatamente o
+  // que a pessoa escreveu — serve para busca e para o futuro modo de jogo
+  // sem precisar ser desembrulhado antes.
+  //
+  // A referência do cartão **não** entra aqui: onde ela acende é resolvido na
+  // hora de desenhar, então renomear o cartão reacende as notas sozinho.
+  `CREATE TABLE notes (
+     id INTEGER PRIMARY KEY AUTOINCREMENT,
+     uuid TEXT NOT NULL,
+     card_id INTEGER NOT NULL,
+     text TEXT NOT NULL,
+     marks TEXT NOT NULL DEFAULT '[]',
+     position INTEGER NOT NULL,
+     created_at INTEGER NOT NULL,
+     updated_at INTEGER NOT NULL,
+     deleted_at INTEGER
+   );
+   CREATE UNIQUE INDEX notes_uuid ON notes (uuid);
+   CREATE INDEX notes_card ON notes (card_id, position);`,
 ];
 
 export async function migrate(db: SQLite.SQLiteDatabase): Promise<void> {

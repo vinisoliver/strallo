@@ -476,3 +476,48 @@ export function SignOutIcon({ size = 20, color = colors.dangerSoft }: IconProps)
     </Svg>
   );
 }
+
+/** Alça de arrastar: seis pontos, a convenção universal de "me segure aqui". */
+export function GripIcon({ size = 18, color = colors.railIdle }: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
+      <Circle cx={9} cy={6} r={1.7} />
+      <Circle cx={15} cy={6} r={1.7} />
+      <Circle cx={9} cy={12} r={1.7} />
+      <Circle cx={15} cy={12} r={1.7} />
+      <Circle cx={9} cy={18} r={1.7} />
+      <Circle cx={15} cy={18} r={1.7} />
+    </Svg>
+  );
+}
+
+/** Três pontos na vertical — abre o menu da nota. */
+export function MoreIcon({ size = 18, color = colors.textSecondary }: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
+      <Circle cx={12} cy={5} r={1.8} />
+      <Circle cx={12} cy={12} r={1.8} />
+      <Circle cx={12} cy={19} r={1.8} />
+    </Svg>
+  );
+}
+
+/** O "U" sublinhado da barra de formatação. */
+export function UnderlineIcon({ size = 17, color = colors.primary }: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M7 4v7a5 5 0 0 0 10 0V4"
+        stroke={color}
+        strokeWidth={2.4}
+        strokeLinecap="round"
+      />
+      <Path
+        d="M5.5 20h13"
+        stroke={color}
+        strokeWidth={2.6}
+        strokeLinecap="round"
+      />
+    </Svg>
+  );
+}

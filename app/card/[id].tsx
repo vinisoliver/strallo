@@ -16,6 +16,8 @@ import { useSQLiteContext } from 'expo-sqlite';
 
 import { CollectionDialog } from '@/components/CollectionDialog';
 import { CollectionPicker } from '@/components/CollectionPicker';
+import { NoteDialog } from '@/components/NoteDialog';
+import { NoteList } from '@/components/NoteList';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import {
@@ -33,6 +35,7 @@ import {
   updateCard,
 } from '@/db/cards';
 import { createCollection } from '@/db/collections';
+import { draftNote, listNotes, saveNotes, type Note } from '@/db/notes';
 import { useCollectionTree } from '@/hooks/useCollectionTree';
 import { colors, font, layout, radius } from '@/theme';
 import { letterOf } from '@/utils/text';
@@ -67,6 +70,10 @@ export default function EditCardScreen() {
   /** Outro cartão já salvo com esta mesma referência, se houver. */
   const [duplicate, setDuplicate] = useState<string | null>(null);
 
+  const [notes, setNotes] = useState<Note[]>([]);
+  /** Índice em edição, `'new'` para uma nota nova, `null` com o modal fechado. */
+  const [editingNote, setEditingNote] = useState<number | 'new' | null>(null);
+
   /**
    * O que estava salvo quando a tela abriu. Comparar com isto — e não com
    * string vazia — é o que faz um cartão existente só acusar alteração
@@ -76,7 +83,8 @@ export default function EditCardScreen() {
     reference: string;
     meaning: string;
     collectionId: number | null;
-  }>({ reference: '', meaning: '', collectionId: openedIn });
+    notes: string;
+  }>({ reference: '', meaning: '', collectionId: openedIn, notes: '[]' });
 
   /** Alvo do "próximo" do teclado quando o foco está na referência. */
   const meaningRef = useRef<TextInput>(null);
@@ -85,17 +93,24 @@ export default function EditCardScreen() {
     if (cardId === null || Number.isNaN(cardId)) return;
 
     let active = true;
-    getCard(db, cardId).then((card) => {
+    void (async () => {
+      const card = await getCard(db, cardId);
       if (!active || !card) return;
+
+      const found = await listNotes(db, cardId);
+      if (!active) return;
+
       setReference(card.reference);
       setMeaning(card.meaning);
       setCollectionId(card.collectionId);
+      setNotes(found);
       saved.current = {
         reference: card.reference,
         meaning: card.meaning,
         collectionId: card.collectionId,
+        notes: signature(found),
       };
-    });
+    })();
 
     return () => {
       active = false;
@@ -105,7 +120,8 @@ export default function EditCardScreen() {
   const isDirty =
     reference !== saved.current.reference ||
     meaning !== saved.current.meaning ||
-    collectionId !== saved.current.collectionId;
+    collectionId !== saved.current.collectionId ||
+    signature(notes) !== saved.current.notes;
 
   /** Voltar sem salvar descarta o que foi digitado — por isso a confirmação. */
   const handleBack = useCallback(() => {
@@ -171,17 +187,22 @@ export default function EditCardScreen() {
         return;
       }
 
-      if (cardId === null || Number.isNaN(cardId)) {
-        await createCard(db, reference, meaning, collectionId);
-      } else {
-        await updateCard(db, cardId, reference, meaning, collectionId);
-      }
+      // As notas vao junto do cartao, na mesma confirmacao: um cartao novo
+      // so tem id depois de criado, e por isso elas so podem ser gravadas
+      // aqui, nunca no momento em que o bloco e escrito.
+      const id =
+        cardId === null || Number.isNaN(cardId)
+          ? await createCard(db, reference, meaning, collectionId)
+          : (await updateCard(db, cardId, reference, meaning, collectionId),
+            cardId);
+
+      await saveNotes(db, id, notes);
       router.back();
     } catch {
       setSaving(false);
       Alert.alert('Não deu para salvar', 'Tente novamente.');
     }
-  }, [canSave, cardId, collectionId, db, meaning, reference, trimmed]);
+  }, [canSave, cardId, collectionId, db, meaning, notes, reference, trimmed]);
 
   const handleDelete = useCallback(() => {
     if (cardId === null || Number.isNaN(cardId)) return;
@@ -325,6 +346,26 @@ export default function EditCardScreen() {
             <ChevronRightIcon size={18} />
           </Pressable>
         </View>
+
+        <View style={styles.notesField}>
+          <NoteList
+            notes={notes}
+            reference={trimmed}
+            onAdd={() => setEditingNote('new')}
+            onEdit={setEditingNote}
+            onRemove={(at) =>
+              setNotes((current) => current.filter((_, i) => i !== at))
+            }
+            onReorder={(from, to) =>
+              setNotes((current) => {
+                const next = [...current];
+                const [held] = next.splice(from, 1);
+                next.splice(to, 0, held);
+                return next;
+              })
+            }
+          />
+        </View>
       </ScrollView>
 
       <View
@@ -370,6 +411,29 @@ export default function EditCardScreen() {
         onCancel={() => setAskingDiscard(false)}
       />
 
+      <NoteDialog
+        visible={editingNote !== null}
+        reference={trimmed}
+        initialText={
+          typeof editingNote === 'number' ? notes[editingNote]?.text : ''
+        }
+        initialMarks={
+          typeof editingNote === 'number' ? notes[editingNote]?.marks : []
+        }
+        onCancel={() => setEditingNote(null)}
+        onConfirm={(text, marks) => {
+          setNotes((current) => {
+            if (editingNote === 'new') return [...current, draftNote(text, marks)];
+            if (typeof editingNote !== 'number') return current;
+
+            return current.map((note, i) =>
+              i === editingNote ? { ...note, text, marks } : note,
+            );
+          });
+          setEditingNote(null);
+        }}
+      />
+
       <CollectionPicker
         visible={picking}
         title="Escolher coleção"
@@ -404,6 +468,19 @@ export default function EditCardScreen() {
         onCancel={() => setCreatingIn(undefined)}
       />
     </KeyboardAvoidingView>
+  );
+}
+
+/**
+ * Resumo comparável das notas.
+ *
+ * Serve para saber se há alteração não salva. Inclui o texto, as marcas **e a
+ * ordem**, porque só arrastar um bloco de lugar já é uma mudança que precisa
+ * ser salva — e sair sem salvar precisa avisar.
+ */
+function signature(notes: Note[]): string {
+  return JSON.stringify(
+    notes.map((note) => [note.uuid, note.text, note.marks]),
   );
 }
 
@@ -509,6 +586,9 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   collectionField: {
+    marginTop: 22,
+  },
+  notesField: {
     marginTop: 22,
   },
   picker: {

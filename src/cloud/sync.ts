@@ -58,6 +58,17 @@ type RemoteCard = {
   deleted_at: number | null;
 };
 
+type RemoteNote = {
+  uuid: string;
+  card_uuid: string | null;
+  text: string;
+  marks: string;
+  position: number;
+  created_at: number;
+  updated_at: number;
+  deleted_at: number | null;
+};
+
 type RemoteSession = {
   uuid: string;
   mode: string;
@@ -80,9 +91,9 @@ type RemoteSession = {
  * tempo) perde uma das edições, e resolver isso direito custaria muito mais
  * do que o problema vale aqui.
  *
- * A ordem é sempre coleções antes de cartões, nas duas direções: um cartão
- * aponta para a pasta onde mora, e a pasta precisa existir dos dois lados
- * antes de alguém apontar para ela.
+ * A ordem segue a dependência, nas duas direções: coleções, depois cartões,
+ * depois notas. Cada um aponta para o anterior, e apontar para uma linha que
+ * ainda não chegou deixaria o vínculo vazio.
  */
 export async function syncNow(
   db: SQLite.SQLiteDatabase,
@@ -122,6 +133,16 @@ async function push(db: SQLite.SQLiteDatabase, userId: string): Promise<void> {
     [since],
   );
 
+  const notes = await db.getAllAsync<RemoteNote>(
+    `SELECT n.uuid, c.uuid AS card_uuid, n.text, n.marks, n.position,
+            n.created_at, n.updated_at, n.deleted_at
+       FROM notes n
+       LEFT JOIN cards c ON c.id = n.card_id
+      WHERE n.updated_at > ?
+      ORDER BY n.updated_at;`,
+    [since],
+  );
+
   const sessions = await db.getAllAsync<RemoteSession>(
     `SELECT s.uuid, s.mode, s.answered, s.correct, s.seconds,
             p.uuid AS collection_uuid, s.finished_at,
@@ -136,6 +157,7 @@ async function push(db: SQLite.SQLiteDatabase, userId: string): Promise<void> {
   const work = [
     ['collections', collections],
     ['cards', cards],
+    ['notes', notes],
     ['practice_sessions', sessions],
   ] as const;
 
@@ -175,6 +197,7 @@ async function pull(db: SQLite.SQLiteDatabase): Promise<void> {
 
   const collections = await fetchAll<RemoteCollection>('collections');
   const cards = await fetchAll<RemoteCard>('cards');
+  const notes = await fetchAll<RemoteNote>('notes');
   const sessions = await fetchAll<RemoteSession>('practice_sessions');
 
   await db.withTransactionAsync(async () => {
@@ -248,6 +271,33 @@ async function pull(db: SQLite.SQLiteDatabase): Promise<void> {
       );
     }
 
+    for (const row of notes) {
+      await db.runAsync(
+        `INSERT INTO notes
+           (uuid, card_id, text, marks, position,
+            created_at, updated_at, deleted_at)
+         VALUES (?, (SELECT id FROM cards WHERE uuid = ?), ?, ?, ?, ?, ?, ?)
+         ON CONFLICT (uuid) DO UPDATE SET
+           card_id = excluded.card_id,
+           text = excluded.text,
+           marks = excluded.marks,
+           position = excluded.position,
+           updated_at = excluded.updated_at,
+           deleted_at = excluded.deleted_at
+         WHERE excluded.updated_at > notes.updated_at;`,
+        [
+          row.uuid,
+          row.card_uuid,
+          row.text,
+          row.marks,
+          row.position,
+          row.created_at,
+          row.updated_at,
+          row.deleted_at,
+        ],
+      );
+    }
+
     for (const row of sessions) {
       await db.runAsync(
         `INSERT INTO practice_sessions
@@ -276,7 +326,7 @@ async function pull(db: SQLite.SQLiteDatabase): Promise<void> {
   });
 
   let highest = since;
-  for (const rows of [collections, cards, sessions]) {
+  for (const rows of [collections, cards, notes, sessions]) {
     for (const row of rows) highest = Math.max(highest, row.updated_at);
   }
 
