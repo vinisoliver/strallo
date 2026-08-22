@@ -1,6 +1,8 @@
 import type * as SQLite from 'expo-sqlite';
 
+import { newId } from '@/utils/id';
 import { normalize } from '@/utils/text';
+import { notifyLocalChange } from '@/cloud/changes';
 
 export type Collection = {
   id: number;
@@ -43,7 +45,8 @@ export const SUBTREE_CTE = `
   WITH RECURSIVE tree(id) AS (
     SELECT ?
     UNION ALL
-    SELECT c.id FROM collections c, tree t WHERE c.parent_id IS t.id
+    SELECT c.id FROM collections c, tree t
+      WHERE c.parent_id IS t.id AND c.deleted_at IS NULL
   )
 `;
 
@@ -60,7 +63,9 @@ export async function listAllCollections(
   db: SQLite.SQLiteDatabase,
 ): Promise<Collection[]> {
   const rows = await db.getAllAsync<CollectionRow>(
-    'SELECT id, name, color, parent_id FROM collections ORDER BY sort_key, id;',
+    `SELECT id, name, color, parent_id FROM collections
+      WHERE deleted_at IS NULL
+      ORDER BY sort_key, id;`,
   );
   return rows.map(toCollection);
 }
@@ -73,7 +78,9 @@ export async function countCardsPerCollection(
     collection_id: number | null;
     total: number;
   }>(
-    'SELECT collection_id, COUNT(*) AS total FROM cards GROUP BY collection_id;',
+    `SELECT collection_id, COUNT(*) AS total FROM cards
+      WHERE deleted_at IS NULL
+      GROUP BY collection_id;`,
   );
 
   return new Map(rows.map((row) => [row.collection_id, row.total]));
@@ -84,7 +91,8 @@ export async function getCollection(
   id: number,
 ): Promise<Collection | null> {
   const row = await db.getFirstAsync<CollectionRow>(
-    'SELECT id, name, color, parent_id FROM collections WHERE id = ?;',
+    `SELECT id, name, color, parent_id FROM collections
+      WHERE id = ? AND deleted_at IS NULL;`,
     [id],
   );
   return row ? toCollection(row) : null;
@@ -99,10 +107,11 @@ export async function createCollection(
   const now = Date.now();
   const result = await db.runAsync(
     `INSERT INTO collections
-       (name, sort_key, color, parent_id, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?);`,
-    [name.trim(), normalize(name), color, parentId, now, now],
+       (uuid, name, sort_key, color, parent_id, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?);`,
+    [newId(), name.trim(), normalize(name), color, parentId, now, now],
   );
+  notifyLocalChange();
   return result.lastInsertRowId;
 }
 
@@ -118,6 +127,8 @@ export async function updateCollection(
      WHERE id = ?;`,
     [name.trim(), normalize(name), color, Date.now(), id],
   );
+
+  notifyLocalChange();
 }
 
 /**
@@ -134,20 +145,28 @@ export async function deleteCollections(
 ): Promise<void> {
   if (ids.length === 0) return;
 
+  const now = Date.now();
+
   await db.withTransactionAsync(async () => {
     for (const id of ids) {
       await db.runAsync(
         `${SUBTREE_CTE}
-         DELETE FROM cards WHERE collection_id IN (SELECT id FROM tree);`,
-        [id],
+         UPDATE cards SET deleted_at = ?, updated_at = ?
+          WHERE collection_id IN (SELECT id FROM tree)
+            AND deleted_at IS NULL;`,
+        [id, now, now],
       );
       await db.runAsync(
         `${SUBTREE_CTE}
-         DELETE FROM collections WHERE id IN (SELECT id FROM tree);`,
-        [id],
+         UPDATE collections SET deleted_at = ?, updated_at = ?
+          WHERE id IN (SELECT id FROM tree)
+            AND deleted_at IS NULL;`,
+        [id, now, now],
       );
     }
   });
+
+  notifyLocalChange();
 }
 
 /** Para onde cada item selecionado voltava antes de ser movido — o "Desfazer". */
@@ -212,6 +231,8 @@ export async function moveEntries(
       );
     }
   });
+
+  notifyLocalChange();
 }
 
 /** Devolve cada item ao lugar de onde saiu. */
@@ -235,4 +256,6 @@ export async function restoreLocations(
       );
     }
   });
+
+  notifyLocalChange();
 }

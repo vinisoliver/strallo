@@ -1,0 +1,97 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&amp;family=Nunito:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; scrollbar-width:none; }
+    *::-webkit-scrollbar { display:none; }
+    body { margin:0; font-family:'Nunito',system-ui,sans-serif; color:#f1f7fb; -webkit-font-smoothing:antialiased; }
+    .phone { width:390px; height:844px; background:#131f24; position:relative; overflow:hidden; display:flex; flex-direction:column; }
+    .display { font-family:'Baloo 2','Nunito',system-ui,sans-serif; }
+    /* Cada linha diz uma coisa que a sincronização resolve. O ícone é a
+       mesma marca de certo do jogo — verde já quer dizer "resolvido". */
+    .perk { display:flex; align-items:flex-start; gap:12px; }
+    .perktext { font-size:14px; font-weight:600; color:#a8bcc7; line-height:1.45; }
+    .perktext b { color:#f1f7fb; font-weight:800; }
+  </style>
+</helmet>
+
+<div class="phone">
+
+  <!-- Header: mesmo par chevron + título das outras telas internas -->
+  <div style="display:flex; align-items:center; gap:14px; padding:34px 18px 8px 18px;">
+    <button style="width:34px; height:34px; border-radius:11px; background:#1f2c33; border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; flex:none;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="#7d929c" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+    </button>
+    <span class="display" style="font-size:20px; font-weight:800; color:#f1f7fb;">Conta</span>
+  </div><div style="flex:1; display:flex; flex-direction:column; padding:0 22px 26px 22px;">
+
+    <!-- A nuvem cortada é o mesmo desenho do botão do header, ampliado:
+         quem tocou nele encontra aqui o porquê de estar apagado. -->
+    <div style="display:flex; justify-content:center; margin:26px 0 22px 0;">
+      <div style="width:112px; height:112px; border-radius:34px; background:#1c2a31; border:2px solid #2b3840; display:flex; align-items:center; justify-content:center;">
+        <svg width="58" height="58" viewBox="0 0 24 24" fill="none">
+          <path d="M7 18h10.2a3.8 3.8 0 0 0 .4-7.58A5.5 5.5 0 0 0 7.2 9.2 4.4 4.4 0 0 0 7 18z" stroke="#556670" stroke-width="1.9" stroke-linejoin="round"></path>
+          <path d="M4.5 4.5l15 15" stroke="#556670" stroke-width="2.2" stroke-linecap="round"></path>
+        </svg>
+      </div>
+    </div>
+
+    <h1 class="display" style="margin:0 0 8px 0; font-size:26px; font-weight:800; color:#f1f7fb; text-align:center; line-height:1.2;">Você não está sincronizado</h1>
+    <p style="margin:0 0 26px 0; font-size:15px; font-weight:600; color:#7d929c; text-align:center; line-height:1.5;">
+      Entre com o Google para guardar uma cópia na nuvem.
+    </p>
+
+    <div style="display:flex; flex-direction:column; gap:16px; padding:0 4px;">
+
+      <div class="perk">
+        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" style="flex:none; margin-top:1px;"><path d="M5 12.5l4.5 4.5L19 7" stroke="#7ad13a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        <span class="perktext">Trocar de celular <b>sem perder nada</b> — cartões, coleções e progresso voltam no lugar.</span>
+      </div>
+
+      <div class="perk">
+        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" style="flex:none; margin-top:1px;"><path d="M5 12.5l4.5 4.5L19 7" stroke="#7ad13a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        <span class="perktext">Estudar em <b>mais de um aparelho</b>, com tudo igual nos dois.</span>
+      </div>
+
+      <div class="perk">
+        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" style="flex:none; margin-top:1px;"><path d="M5 12.5l4.5 4.5L19 7" stroke="#7ad13a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        <span class="perktext">O app <b>continua funcionando sem internet</b>: a nuvem é cópia, não é o lugar onde os cartões moram.</span>
+      </div>
+
+    </div>
+
+    <div style="flex:1;"></div>
+
+    <!-- Botão do Google no padrão da marca deles: fundo claro, G colorido -->
+    <button style="width:100%; height:56px; display:flex; align-items:center; justify-content:center; gap:12px; border:none; border-radius:16px; background:#f1f7fb; box-shadow:0 4px 0 #b9c6cd; cursor:pointer;">
+      <svg width="21" height="21" viewBox="0 0 48 48" style="flex:none;">
+        <path fill="#ea4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>
+        <path fill="#4285f4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path>
+        <path fill="#fbbc05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path>
+        <path fill="#34a853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path>
+      </svg>
+      <span style="font-family:'Nunito',sans-serif; font-weight:800; font-size:16px; color:#2b2317; letter-spacing:.2px;">Entrar com Google</span>
+    </button>
+
+  </div>
+
+  
+
+</div>
+
+<script data-dc-script="" data-props="{}">
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</x-dc>
+</body>
+</html>

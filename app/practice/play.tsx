@@ -15,6 +15,8 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSQLiteContext } from 'expo-sqlite';
 
+import { recordSession } from '@/db/sessions';
+
 import { GameCard } from '@/components/game/GameCard';
 import { ProgressBar } from '@/components/game/ProgressBar';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
@@ -82,6 +84,19 @@ export default function PlayScreen() {
   const finish = useCallback(
     (finalCorrect: number, finalAnswered: number) => {
       const elapsed = Math.round((Date.now() - startedAt.current) / 1000);
+
+      // A rodada é registrada aqui, e não na tela de resultado: o resultado
+      // volta a montar no "Recomeçar" e contaria a mesma rodada de novo.
+      // Sair pelo X não passa por aqui, e é o que se quer -- desistir no meio
+      // não é uma prática concluída.
+      void recordSession(db, {
+        mode,
+        answered: finalAnswered,
+        correct: finalCorrect,
+        seconds: elapsed,
+        collectionId,
+      });
+
       router.replace({
         pathname: '/practice/results',
         params: {
@@ -97,7 +112,7 @@ export default function PlayScreen() {
         },
       });
     },
-    [collectionId, limit, mode],
+    [collectionId, db, limit, mode],
   );
 
   // Relógio do modo por tempo. Pausa enquanto a resposta está na tela: ler o

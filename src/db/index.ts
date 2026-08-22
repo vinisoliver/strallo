@@ -1,5 +1,6 @@
-import * as SQLite from 'expo-sqlite';
+import type * as SQLite from 'expo-sqlite';
 
+import { newId } from '@/utils/id';
 import { foldCase, normalize } from '@/utils/text';
 
 export const DATABASE_NAME = 'strallo.db';
@@ -11,7 +12,7 @@ type Migration = string | ((db: SQLite.SQLiteDatabase) => Promise<void>);
  * Migrações aplicadas em ordem. `user_version` guarda quantas já rodaram,
  * então adicionar um item ao fim basta — nunca edite um já publicado.
  */
-const MIGRATIONS: Migration[] = [
+export const MIGRATIONS: Migration[] = [
   `CREATE TABLE cards (
      id INTEGER PRIMARY KEY AUTOINCREMENT,
      reference TEXT NOT NULL,
@@ -93,6 +94,69 @@ const MIGRATIONS: Migration[] = [
     await db.execAsync(
       'CREATE INDEX cards_reference_key ON cards (reference_key);',
     );
+  },
+  // Sincronizacao: cada linha ganha identidade global e marca de exclusao.
+  //
+  // `uuid` existe porque o autoincrement e unico neste banco, nao entre
+  // bancos: dois aparelhos offline criam, os dois, o `id = 7`. O `id` segue
+  // mandando dentro do app; o uuid so vale na fronteira com a nuvem, onde as
+  // linhas sao casadas por ele. Ver `newId` em `@/utils/id`.
+  //
+  // `deleted_at` troca a exclusao de verdade por uma marca. Sem isso a
+  // exclusao nao se propaga: o aparelho A apaga a linha, o B ainda a tem, e no
+  // proximo sync o B **devolve** o que o A tinha excluido. Toda consulta do
+  // app passa a filtrar `deleted_at IS NULL`.
+  async (db) => {
+    for (const table of ['cards', 'collections'] as const) {
+      await db.execAsync(
+        `ALTER TABLE ${table} ADD COLUMN uuid TEXT NOT NULL DEFAULT '';
+         ALTER TABLE ${table} ADD COLUMN deleted_at INTEGER;`,
+      );
+
+      // O indice unico so entra depois do preenchimento: com as linhas ainda
+      // em '' ele recusaria a segunda.
+      const rows = await db.getAllAsync<{ id: number }>(
+        `SELECT id FROM ${table};`,
+      );
+      for (const row of rows) {
+        await db.runAsync(`UPDATE ${table} SET uuid = ? WHERE id = ?;`, [
+          newId(),
+          row.id,
+        ]);
+      }
+
+      await db.execAsync(`
+        CREATE UNIQUE INDEX ${table}_uuid ON ${table} (uuid);
+        CREATE INDEX ${table}_dirty ON ${table} (updated_at);
+      `);
+    }
+
+    // Uma linha por rodada concluida. E o numero "praticas" da tela de Conta,
+    // e o motivo de ser tabela e nao contador: um contador nao se sincroniza
+    // (somar dois aparelhos daria o dobro), uma lista de rodadas se junta
+    // sozinha.
+    await db.execAsync(`
+      CREATE TABLE practice_sessions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        uuid TEXT NOT NULL,
+        mode TEXT NOT NULL,
+        answered INTEGER NOT NULL,
+        correct INTEGER NOT NULL,
+        seconds INTEGER NOT NULL,
+        collection_id INTEGER,
+        finished_at INTEGER NOT NULL,
+        created_at INTEGER NOT NULL,
+        updated_at INTEGER NOT NULL,
+        deleted_at INTEGER
+      );
+      CREATE UNIQUE INDEX practice_sessions_uuid ON practice_sessions (uuid);
+      CREATE INDEX practice_sessions_finished ON practice_sessions (finished_at);
+
+      CREATE TABLE sync_state (
+        key TEXT PRIMARY KEY,
+        value TEXT NOT NULL
+      );
+    `);
   },
 ];
 

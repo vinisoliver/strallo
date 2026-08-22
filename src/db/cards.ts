@@ -1,7 +1,9 @@
 import type * as SQLite from 'expo-sqlite';
 
 import { SUBTREE_CTE } from '@/db/collections';
+import { newId } from '@/utils/id';
 import { foldCase, normalize } from '@/utils/text';
+import { notifyLocalChange } from '@/cloud/changes';
 
 export type Card = {
   id: number;
@@ -23,7 +25,8 @@ export async function getCard(
   id: number,
 ): Promise<CardDetail | null> {
   const row = await db.getFirstAsync<CardRow & { collection_id: number | null }>(
-    'SELECT id, reference, meaning, collection_id FROM cards WHERE id = ?;',
+    `SELECT id, reference, meaning, collection_id FROM cards
+      WHERE id = ? AND deleted_at IS NULL;`,
     [id],
   );
 
@@ -58,7 +61,7 @@ export async function findDuplicateReference(
 
   return db.getFirstAsync<CardRow>(
     `SELECT id, reference, meaning FROM cards
-      WHERE reference_key = ? AND id IS NOT ?
+      WHERE reference_key = ? AND id IS NOT ? AND deleted_at IS NULL
       LIMIT 1;`,
     [key, exceptId],
   );
@@ -74,10 +77,11 @@ export async function createCard(
   const now = Date.now();
   const result = await db.runAsync(
     `INSERT INTO cards
-       (reference, meaning, sort_key, meaning_key, reference_key,
+       (uuid, reference, meaning, sort_key, meaning_key, reference_key,
         collection_id, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?);`,
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`,
     [
+      newId(),
       reference.trim(),
       meaning.trim(),
       normalize(reference),
@@ -88,6 +92,7 @@ export async function createCard(
       now,
     ],
   );
+  notifyLocalChange();
   return result.lastInsertRowId;
 }
 
@@ -115,13 +120,28 @@ export async function updateCard(
       id,
     ],
   );
+
+  notifyLocalChange();
 }
 
+/**
+ * Marca o cartão como excluído em vez de apagar a linha.
+ *
+ * A linha precisa sobreviver para a exclusão chegar aos outros aparelhos: sem
+ * a marca, quem ainda tem o cartão o devolveria no próximo sync, porque para
+ * ele a linha simplesmente existe e a do outro sumiu sem deixar recado.
+ */
 export async function deleteCard(
   db: SQLite.SQLiteDatabase,
   id: number,
 ): Promise<void> {
-  await db.runAsync('DELETE FROM cards WHERE id = ?;', [id]);
+  const now = Date.now();
+  await db.runAsync(
+    'UPDATE cards SET deleted_at = ?, updated_at = ? WHERE id = ?;',
+    [now, now, id],
+  );
+
+  notifyLocalChange();
 }
 
 /** Exclui vários de uma vez — o "Excluir" da barra de seleção. */
@@ -131,17 +151,23 @@ export async function deleteCards(
 ): Promise<void> {
   if (ids.length === 0) return;
 
+  const now = Date.now();
   await db.withTransactionAsync(async () => {
     for (const id of ids) {
-      await db.runAsync('DELETE FROM cards WHERE id = ?;', [id]);
+      await db.runAsync(
+        'UPDATE cards SET deleted_at = ?, updated_at = ? WHERE id = ?;',
+        [now, now, id],
+      );
     }
   });
+
+  notifyLocalChange();
 }
 
 /** Total de cartões salvos — o número exibido ao lado do logotipo. */
 export async function countCards(db: SQLite.SQLiteDatabase): Promise<number> {
   const row = await db.getFirstAsync<{ total: number }>(
-    'SELECT COUNT(*) AS total FROM cards;',
+    'SELECT COUNT(*) AS total FROM cards WHERE deleted_at IS NULL;',
   );
   return row?.total ?? 0;
 }
@@ -165,7 +191,7 @@ export async function drawCards(
   return db.getAllAsync<CardRow>(
     `${SUBTREE_CTE}
      SELECT id, reference, meaning FROM cards
-      WHERE TRIM(meaning) <> ''
+      WHERE TRIM(meaning) <> '' AND deleted_at IS NULL
         AND EXISTS (SELECT 1 FROM tree WHERE tree.id IS cards.collection_id)
       ORDER BY RANDOM()
       ${limit === undefined ? '' : 'LIMIT ?'};`,
@@ -181,7 +207,7 @@ export async function countPlayableCards(
   const row = await db.getFirstAsync<{ total: number }>(
     `${SUBTREE_CTE}
      SELECT COUNT(*) AS total FROM cards
-      WHERE TRIM(meaning) <> ''
+      WHERE TRIM(meaning) <> '' AND deleted_at IS NULL
         AND EXISTS (SELECT 1 FROM tree WHERE tree.id IS cards.collection_id);`,
     [collectionId],
   );

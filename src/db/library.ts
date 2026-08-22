@@ -79,11 +79,11 @@ export async function listEntries(
       `SELECT 'collection' AS kind, id, name AS label, '' AS meaning,
               color, parent_id, sort_key
          FROM collections
-        WHERE parent_id IS ?
+        WHERE parent_id IS ? AND deleted_at IS NULL
        UNION ALL
        SELECT 'card', id, reference, meaning, '', NULL, sort_key
          FROM cards
-        WHERE collection_id IS ?
+        WHERE collection_id IS ? AND deleted_at IS NULL
         ORDER BY sort_key, kind, id;`,
       [parentId, parentId],
     );
@@ -101,12 +101,14 @@ export async function listEntries(
             color, parent_id, sort_key, 0 AS match_rank
        FROM collections
       WHERE EXISTS (SELECT 1 FROM tree WHERE tree.id IS collections.parent_id)
+        AND deleted_at IS NULL
         AND sort_key LIKE ?
      UNION ALL
      SELECT 'card', id, reference, meaning, '', NULL, sort_key,
             CASE WHEN sort_key LIKE ? THEN 0 ELSE 1 END
        FROM cards
       WHERE EXISTS (SELECT 1 FROM tree WHERE tree.id IS cards.collection_id)
+        AND deleted_at IS NULL
         AND (sort_key LIKE ? OR meaning_key LIKE ?)
       ORDER BY match_rank, sort_key, kind, id;`,
     [parentId, like, like, like, like],

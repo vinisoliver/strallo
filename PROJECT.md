@@ -14,9 +14,14 @@ primária. Nome todo minúsculo: **strallo** (o app se apresenta como
 | **Fluxo Início** — grade, busca, rail alfabético, criar/editar/excluir | pronto | pronto |
 | **Fluxo Jogo** — escolher modo, configurar, jogar, resposta, resultado | pronto | pronto |
 | **Coleções** — agrupar cartões em pastas | pronto | pronto |
+| **Conta e nuvem** — login Google, sincronização | pronto | pronto, **sem credenciais** |
 
-Os três fluxos estão em pé. O que falta do README (nuvem, compartilhar
-coleções, imagem, IA, voz, frases) ainda não tem design nem código.
+Os quatro fluxos estão em pé. A nuvem só entra em operação quando o `.env`
+tiver as três variáveis — ver **Nuvem** abaixo. Sem elas o app roda igual,
+offline, e a tela de Conta diz que a sincronização não foi configurada.
+
+O que falta do README (compartilhar coleções, imagem, IA, voz, frases) ainda
+não tem design nem código.
 
 ---
 
@@ -88,6 +93,7 @@ app/
   _layout.tsx          fontes, SQLiteProvider, Stack
   index.tsx            tela inicial — grade, coleções, seleção múltipla
   card/[id].tsx        adicionar (/card/new) e editar (/card/<id>)
+  account.tsx          conta: sem login, ou com sessão e números
   practice/
     index.tsx          escolher modo
     config.tsx         configurar tempo ou quantidade
@@ -99,6 +105,14 @@ src/
   db/cards.ts          CRUD de cartões, repetidas e sorteio do baralho
   db/collections.ts    CRUD da árvore, mover, excluir em cascata
   db/library.ts        a listagem única de coleções + cartões da grade
+  db/sessions.ts       rodadas concluídas (o número "práticas")
+  db/account.ts        os três totais da tela de Conta
+  cloud/config.ts      credenciais do ambiente e o `cloudConfigured`
+  cloud/client.ts      o client do Supabase, ou null sem credenciais
+  cloud/auth.ts        Google -> idToken -> sessão do Supabase
+  cloud/sync.ts        sobe o que mudou aqui, desce o que mudou lá
+  cloud/changes.ts     aviso de escrita local, disparado pelo próprio db/
+  cloud/CloudProvider.tsx  sessão, estado da sincronização, debounce
   game/types.ts        modos, limites, durações das animações
   game/answer.ts       o que conta como resposta certa
   hooks/useLibrary.ts  carrega um nível da árvore + a árvore inteira
@@ -108,6 +122,7 @@ src/
   utils/grid.ts        monta a grade e resolve o rail alfabético
   utils/collections.ts contagens da subárvore, caminho, guarda de ciclo
 design/                artboards da canvas
+supabase/schema.sql    o que rodar no SQL Editor do Supabase
 scripts/               geração de ícones e capturas
 ```
 
@@ -276,6 +291,89 @@ regra dos cartões, com as coleções no primeiro bloco (o dos nomes).
 **Excluir uma coleção leva o conteúdo junto**, em qualquer profundidade —
 decisão do Vinícius, em 21/08/2026. Nada sobe para o nível de cima. Por
 isso a confirmação diz quantos cartões vão embora (`describeDeletion`).
+
+## Nuvem — como ficou
+
+O armazenamento continua sendo **local**. A nuvem é uma cópia que se
+reconcilia, não o lugar onde os cartões moram: tirar a internet não muda nada
+no uso do app. Essa foi a decisão que orientou o resto.
+
+### Por que Postgres (Supabase), e não um banco de documentos
+
+Os dados **já eram relacionais e já eram SQLite** — `cards.collection_id`,
+`collections.parent_id`, a CTE recursiva que percorre a subárvore. Um esquema
+relacional na nuvem é quase uma cópia do local, e sincronizar vira mapear
+linha com linha. Um banco de documentos exigiria um segundo modelo, diferente
+do que já existe, e tradução nos dois sentidos.
+
+O que costuma justificar NoSQL — documentos desnormalizados, escala
+horizontal — não vale aqui: uma biblioteca pessoal são alguns milhares de
+linhas, todas de um dono só. Supabase especificamente pelo login Google
+pronto e pela Row Level Security.
+
+### O que a sincronização exigiu do esquema local (migração 5)
+
+Três mudanças que **não dava para adiar**, porque mexem em tabela com dado
+dentro:
+
+**`uuid` em toda linha.** O autoincrement é único neste banco, não entre
+bancos: dois aparelhos offline criam, os dois, o `id = 7`. O `id` INTEGER
+continua mandando dentro do app — nenhuma tela mudou por causa disso —, e o
+uuid só existe na fronteira com a nuvem. A tradução acontece num `LEFT JOIN`
+na subida e num subselect por uuid na descida.
+
+**`deleted_at` no lugar da exclusão.** Apagar de verdade não se propaga: o
+aparelho A apaga, o B ainda tem a linha, e no próximo sync o B **devolve** o
+que o A excluiu. Agora `deleteCard`, `deleteCards` e `deleteCollections`
+marcam, e toda consulta do app filtra `deleted_at IS NULL`.
+
+**`practice_sessions`.** Uma linha por rodada concluída, e não um contador:
+contador não se sincroniza — dois aparelhos com 20 cada não viram 40 nem 20, e
+não há como saber. Lista de rodadas se junta sozinha.
+
+### Como o sync funciona
+
+`syncNow` sobe e depois desce, sempre **coleções antes de cartões** nas duas
+direções: um cartão aponta para a pasta onde mora, e a pasta precisa existir
+dos dois lados antes disso.
+
+O árbitro de conflito é `updated_at`, e vence a escrita mais recente. Para um
+acervo pessoal em poucos aparelhos basta; o caso que sobra (editar o mesmo
+cartão nos dois, offline, ao mesmo tempo) perde uma das edições.
+
+Duas sutilezas que já custaram raciocínio:
+
+- Na descida, as coleções entram em **duas passadas** — primeiro sem o pai,
+  depois com. Uma subcoleção pode chegar antes da pasta que a contém, e
+  apontar para uma linha inexistente deixaria a árvore quebrada.
+- A marca d'água da leitura acompanha o `updated_at` **das linhas que
+  vieram**, não o relógio do aparelho. Dois celulares com horas diferentes
+  fariam a marca pular para o futuro e esconder alterações legítimas.
+
+### O que dispara uma sincronização
+
+As funções de escrita do `db/` chamam `notifyLocalChange()` — não as telas.
+Assim qualquer caminho que crie, edite ou exclua passa por ali, e uma tela
+nova nasce sincronizando. O `CloudProvider` escuta, espera 2,5 s para juntar
+mudanças seguidas, e sobe uma vez. Também sincroniza ao abrir o app, ao
+voltar do segundo plano e logo depois do login.
+
+### Credenciais
+
+Três variáveis no `.env` (modelo em `.env.example`). Sem elas
+`cloudConfigured` é falso, `getClient()` devolve `null` e a tela de Conta
+mostra o aviso em vez do botão do Google.
+
+`EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` é o client **Web**, não o Android: é a
+audiência que o Supabase valida no `signInWithIdToken`. Com o id do Android o
+login passa no aparelho e falha no servidor, com um erro que não diz isso.
+
+O login nativo do Google **não funciona no Expo Go** — precisa de um build
+próprio. E o Android exige que a SHA-1 do keystore usado na build esteja
+registrada num client OAuth de Android no Google Cloud; a da EAS sai de
+`npx --yes --package eas-cli eas credentials`.
+
+---
 
 ## Design system
 

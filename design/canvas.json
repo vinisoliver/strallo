@@ -143,11 +143,29 @@
       "h": 520,
       "title": "Lampi · Marca",
       "page": "marca"
+    },
+    {
+      "file": "Account.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "1 · Conta sem login",
+      "page": "conta"
+    },
+    {
+      "file": "AccountSynced.dc.html",
+      "x": 470,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "2 · Conta sincronizada",
+      "page": "conta"
     }
   ],
   "launch": {
     "view": "canvas",
-    "page": "colecoes"
+    "page": "conta"
   },
   "pages": [
     {
@@ -165,6 +183,10 @@
     {
       "id": "colecoes",
       "name": "Fluxo Coleções"
+    },
+    {
+      "id": "conta",
+      "name": "Fluxo Conta"
     }
   ]
 }

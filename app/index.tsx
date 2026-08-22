@@ -25,7 +25,15 @@ import { PrimaryButton } from '@/components/PrimaryButton';
 import { SearchBar } from '@/components/SearchBar';
 import { SelectionBar } from '@/components/SelectionBar';
 import { Toast } from '@/components/Toast';
-import { BackIcon, CloseIcon, Logo, PlayIcon, StackIcon } from '@/components/icons';
+import {
+  BackIcon,
+  CloseIcon,
+  CloudIcon,
+  Logo,
+  PlayIcon,
+  StackIcon,
+} from '@/components/icons';
+import { useCloud } from '@/cloud/CloudProvider';
 import { deleteCards } from '@/db/cards';
 import {
   createCollection,
@@ -39,7 +47,7 @@ import {
 } from '@/db/collections';
 import type { Entry } from '@/db/library';
 import { useLibrary } from '@/hooks/useLibrary';
-import { ROW_HEIGHT, alpha, colors, font, layout, radius } from '@/theme';
+import { ROW_HEIGHT, alpha, colors, font, game, layout, radius } from '@/theme';
 import { describeDeletion } from '@/utils/collections';
 import {
   buildGrid,
@@ -489,9 +497,15 @@ export default function HomeScreen() {
           {collectionId === null ? (
             <View style={styles.headerRow}>
               <Logo />
-              <View style={styles.counter} accessibilityLabel={`${total} cartões`}>
-                <StackIcon />
-                <Text style={styles.counterText}>{total}</Text>
+              <View style={styles.headerRight}>
+                <View
+                  style={styles.counter}
+                  accessibilityLabel={`${total} cartões`}
+                >
+                  <StackIcon />
+                  <Text style={styles.counterText}>{total}</Text>
+                </View>
+                <CloudButton />
               </View>
             </View>
           ) : (
@@ -684,6 +698,39 @@ export default function HomeScreen() {
   );
 }
 
+/**
+ * Nuvem do header: diz, de relance, se existe uma cópia do acervo em algum
+ * lugar além deste celular.
+ *
+ * Sem conta a nuvem aparece cortada e ganha um ponto de aviso — é a única
+ * coisa no início que pede atenção sem ser pedida. Com conta ela fecha e fica
+ * verde, e o ponto some: não há nada a resolver.
+ */
+function CloudButton() {
+  const { status } = useCloud();
+  const synced = status === 'signedIn';
+
+  return (
+    <Pressable
+      onPress={() => router.push('/account')}
+      accessibilityRole="button"
+      accessibilityLabel={synced ? 'Conta sincronizada' : 'Entrar na conta'}
+      style={({ pressed }) => [
+        styles.cloudButton,
+        synced ? styles.cloudOn : styles.cloudOff,
+        pressed && styles.pressed,
+      ]}
+    >
+      <CloudIcon
+        size={21}
+        synced={synced}
+        color={synced ? game.correct.main : colors.textSecondary}
+      />
+      {status === 'signedOut' ? <View style={styles.cloudDot} /> : null}
+    </Pressable>
+  );
+}
+
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
@@ -749,6 +796,36 @@ const styles = StyleSheet.create({
   },
   pressed: {
     opacity: 0.75,
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  cloudButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cloudOff: {
+    backgroundColor: colors.input,
+    borderWidth: 2,
+    borderColor: colors.borderMenu,
+  },
+  cloudOn: {
+    backgroundColor: game.correct.tint,
+  },
+  // Ponto de aviso: existe algo aqui que ainda não foi resolvido.
+  cloudDot: {
+    position: 'absolute',
+    right: -1,
+    bottom: 0,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#0aa0fc',
   },
   counter: {
     flexDirection: 'row',

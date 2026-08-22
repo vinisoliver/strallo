@@ -365,3 +365,114 @@ export function HomeIcon({ size = 24, color = colors.textSecondary }: IconProps)
     </Svg>
   );
 }
+
+/**
+ * Nuvem do header e da tela de Conta.
+ *
+ * Um desenho com dois estados em vez de dois ícones: `synced` fecha a nuvem e
+ * põe a marca de certo dentro dela; sem conta, a nuvem aparece cortada. O
+ * corte é o que diz, sem texto, que nada está saindo do aparelho.
+ */
+export function CloudIcon({
+  size = 21,
+  color = colors.textSecondary,
+  synced = false,
+}: IconProps & { synced?: boolean }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M7 17.5h10.2a3.8 3.8 0 0 0 .4-7.58A5.5 5.5 0 0 0 7.2 8.7 4.4 4.4 0 0 0 7 17.5z"
+        stroke={color}
+        strokeWidth={1.9}
+        strokeLinejoin="round"
+      />
+      {synced ? (
+        <Path
+          d="M9.7 13.2l1.9 1.9 3.9-4"
+          stroke={color}
+          strokeWidth={2.2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      ) : (
+        <Path
+          d="M4.8 4.3l14.4 14.9"
+          stroke={color}
+          strokeWidth={2.2}
+          strokeLinecap="round"
+        />
+      )}
+    </Svg>
+  );
+}
+
+/** O G do Google, nas quatro cores da marca deles. */
+export function GoogleIcon({ size = 21 }: { size?: number }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 48 48">
+      <Path
+        fill="#ea4335"
+        d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"
+      />
+      <Path
+        fill="#4285f4"
+        d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"
+      />
+      <Path
+        fill="#fbbc05"
+        d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"
+      />
+      <Path
+        fill="#34a853"
+        d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
+      />
+    </Svg>
+  );
+}
+
+/** Calendário da linha "na strallo desde". */
+export function CalendarIcon({
+  size = 20,
+  color = colors.textSecondary,
+}: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Rect
+        x={3.5}
+        y={5.5}
+        width={17}
+        height={15}
+        rx={3}
+        stroke={color}
+        strokeWidth={2}
+      />
+      <Path
+        d="M3.5 10.5h17M8 3.5v4M16 3.5v4"
+        stroke={color}
+        strokeWidth={2}
+        strokeLinecap="round"
+      />
+    </Svg>
+  );
+}
+
+/** Porta com seta — o "Sair da conta". */
+export function SignOutIcon({ size = 20, color = colors.dangerSoft }: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M14 4.5H6.5a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2H14"
+        stroke={color}
+        strokeWidth={2.2}
+        strokeLinecap="round"
+      />
+      <Path
+        d="M17.5 8.5L21 12l-3.5 3.5M20.5 12H10"
+        stroke={color}
+        strokeWidth={2.2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
