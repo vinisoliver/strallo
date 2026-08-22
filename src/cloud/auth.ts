@@ -1,7 +1,3 @@
-import {
-  GoogleSignin,
-  type User as GoogleUser,
-} from '@react-native-google-signin/google-signin';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
 
 import { getClient } from '@/cloud/client';
@@ -26,12 +22,50 @@ export class SignInCancelled extends Error {
   }
 }
 
+type GoogleModule = typeof import('@react-native-google-signin/google-signin');
+
+let cached: GoogleModule | null = null;
+let attempted = false;
+
+/**
+ * Carrega o módulo do Google **sob demanda**.
+ *
+ * O `import` estático era um erro: o corpo do módulo chama
+ * `TurboModuleRegistry.getEnforcing`, que estoura onde o binário nativo não
+ * existe — o Expo Go. Como `_layout` importa esta cadeia inteira, o app
+ * inteiro morria na abertura, antes de qualquer verificação ter chance de
+ * rodar. Adiando a carga, quem não tem o módulo simplesmente fica sem login,
+ * com o resto do app funcionando.
+ *
+ * A ausência é detectada tentando carregar, e não olhando o ambiente: um
+ * build de desenvolvimento e o Expo Go se apresentam igual para
+ * `Constants.executionEnvironment`, e o primeiro **tem** o módulo. Perguntar
+ * ao próprio módulo é a única resposta que vale nos dois casos.
+ */
+async function google(): Promise<GoogleModule | null> {
+  if (attempted) return cached;
+  attempted = true;
+
+  try {
+    cached = await import('@react-native-google-signin/google-signin');
+  } catch {
+    cached = null;
+  }
+
+  return cached;
+}
+
+/** Se este aparelho consegue abrir o diálogo do Google. */
+export async function isGoogleAvailable(): Promise<boolean> {
+  return (await google()) !== null;
+}
+
 let configured = false;
 
-function configure(): void {
+function configure(module: GoogleModule): void {
   if (configured) return;
   // `webClientId` mesmo no Android: é a audiência que o Supabase valida.
-  GoogleSignin.configure({ webClientId: googleWebClientId });
+  module.GoogleSignin.configure({ webClientId: googleWebClientId });
   configured = true;
 }
 
@@ -46,13 +80,20 @@ export async function signIn(): Promise<CloudUser> {
   const supabase = getClient();
   if (!supabase) throw new Error('Sincronização não configurada');
 
-  configure();
-  await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+  const module = await google();
+  if (!module) {
+    throw new Error('O login com Google não está disponível nesta versão');
+  }
 
-  const response = await GoogleSignin.signIn();
+  configure(module);
+  await module.GoogleSignin.hasPlayServices({
+    showPlayServicesUpdateDialog: true,
+  });
+
+  const response = await module.GoogleSignin.signIn();
   if (response.type !== 'success') throw new SignInCancelled();
 
-  const idToken = (response.data as GoogleUser).idToken;
+  const idToken = response.data.idToken;
   if (!idToken) {
     throw new Error('O Google não devolveu o token de identificação');
   }
@@ -81,9 +122,12 @@ export async function signOut(): Promise<void> {
   const supabase = getClient();
   if (supabase) await supabase.auth.signOut();
 
-  configure();
+  const module = await google();
+  if (!module) return;
+
   try {
-    await GoogleSignin.signOut();
+    configure(module);
+    await module.GoogleSignin.signOut();
   } catch {
     // Sair do Google é higiene, não requisito: se falhar, a sessão que
     // importa (a do Supabase) já caiu.

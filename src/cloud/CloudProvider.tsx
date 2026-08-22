@@ -16,6 +16,7 @@ import { cloudConfigured } from '@/cloud/config';
 import {
   SignInCancelled,
   currentUser,
+  isGoogleAvailable,
   signIn as googleSignIn,
   signOut as googleSignOut,
   type CloudUser,
@@ -31,8 +32,17 @@ import { syncNow } from '@/cloud/sync';
  */
 export type CloudStatus = 'loading' | 'off' | 'signedOut' | 'signedIn';
 
+/** Por que a nuvem está desligada, quando o status é `off`. */
+export type CloudReason =
+  /** Faltam as variáveis do .env. */
+  | 'unconfigured'
+  /** O módulo nativo do Google não existe aqui — tipicamente o Expo Go. */
+  | 'unsupported';
+
 type CloudValue = {
   status: CloudStatus;
+  /** Só faz sentido com `status === 'off'`. */
+  reason: CloudReason | null;
   user: CloudUser | null;
   syncing: boolean;
   /** Quando a última sincronização terminou bem. */
@@ -56,6 +66,9 @@ export function CloudProvider({ children }: { children: ReactNode }) {
 
   const [status, setStatus] = useState<CloudStatus>(
     cloudConfigured ? 'loading' : 'off',
+  );
+  const [reason, setReason] = useState<CloudReason | null>(
+    cloudConfigured ? null : 'unconfigured',
   );
   const [user, setUser] = useState<CloudUser | null>(null);
   const [syncing, setSyncing] = useState(false);
@@ -109,10 +122,20 @@ export function CloudProvider({ children }: { children: ReactNode }) {
         'SELECT value FROM sync_state WHERE key = ?;',
         [LAST_SYNC_KEY],
       );
-      const found = await currentUser().catch(() => null);
+      // Sem o módulo nativo não há login possível, e a tela precisa dizer
+      // isso em vez de oferecer um botão que não abriria nada.
+      const supported = await isGoogleAvailable();
+      const found = supported ? await currentUser().catch(() => null) : null;
       if (!active) return;
 
       if (row) setLastSyncAt(Number(row.value) || null);
+
+      if (!supported) {
+        setStatus('off');
+        setReason('unsupported');
+        return;
+      }
+
       setUser(found);
       setStatus(found ? 'signedIn' : 'signedOut');
       if (found) {
@@ -169,8 +192,18 @@ export function CloudProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo<CloudValue>(
-    () => ({ status, user, syncing, lastSyncAt, error, signIn, signOut, sync }),
-    [status, user, syncing, lastSyncAt, error, signIn, signOut, sync],
+    () => ({
+      status,
+      reason,
+      user,
+      syncing,
+      lastSyncAt,
+      error,
+      signIn,
+      signOut,
+      sync,
+    }),
+    [status, reason, user, syncing, lastSyncAt, error, signIn, signOut, sync],
   );
 
   return (

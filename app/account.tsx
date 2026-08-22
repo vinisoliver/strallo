@@ -12,7 +12,11 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSQLiteContext } from 'expo-sqlite';
 
-import { useCloud } from '@/cloud/CloudProvider';
+import {
+  useCloud,
+  type CloudReason,
+  type CloudStatus,
+} from '@/cloud/CloudProvider';
 import {
   BackIcon,
   CalendarIcon,
@@ -95,11 +99,7 @@ function SignedOut({ bottom }: { bottom: number }) {
       </View>
 
       <Text style={styles.title}>Você não está sincronizado</Text>
-      <Text style={styles.lead}>
-        {off
-          ? 'A sincronização ainda não foi configurada nesta versão do app.'
-          : 'Entre com o Google para guardar uma cópia na nuvem.'}
-      </Text>
+      <Text style={styles.lead}>{explain(cloud.status, cloud.reason)}</Text>
 
       <View style={styles.perks}>
         <Perk>
@@ -145,6 +145,23 @@ function SignedOut({ bottom }: { bottom: number }) {
       </Pressable>
     </View>
   );
+}
+
+/**
+ * O que dizer quando não dá para entrar.
+ *
+ * São dois impedimentos diferentes, e confundi-los custa tempo de quem lê:
+ * faltar credencial é coisa de quem monta o app, e faltar o módulo nativo
+ * é só estar rodando no Expo Go, onde nada precisa ser corrigido.
+ */
+function explain(status: CloudStatus, reason: CloudReason | null): string {
+  if (status !== 'off') {
+    return 'Entre com o Google para guardar uma cópia na nuvem.';
+  }
+
+  return reason === 'unsupported'
+    ? 'O login com Google precisa de um build próprio do app — no Expo Go ele não está disponível.'
+    : 'A sincronização ainda não foi configurada nesta versão do app.';
 }
 
 function SignedIn({

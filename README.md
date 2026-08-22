@@ -185,7 +185,9 @@ sincronização não foi configurada. Para ligá-la:
    variáveis.
 
 O login com Google depende de módulo nativo, então **não funciona no Expo Go** —
-é preciso um build próprio. As variáveis `EXPO_PUBLIC_*` são embutidas em tempo
+é preciso um build próprio. O resto do app roda no Expo Go normalmente: o
+módulo é carregado sob demanda, e quando não existe a tela de Conta explica
+em vez de o app quebrar. As variáveis `EXPO_PUBLIC_*` são embutidas em tempo
 de compilação: para uma build na nuvem elas precisam estar registradas no EAS,
 não apenas no `.env` local.
 
