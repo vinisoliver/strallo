@@ -66,8 +66,9 @@ o Google acrescenta uma **cópia na nuvem** que se reconcilia entre aparelhos �
 - ⬜ Responder no jogo com o microfone
 <br><br>
 
-- ⬜ Adicionar frases de exemplo para cada cartão
-- ⬜ Modo de jogo usando frases
+- ✅ Notas do cartão: até seis linhas de até 120 caracteres, reordenáveis
+- ✅ Sublinhado nas notas, com a referência do cartão acendendo sozinha
+- ⬜ Modo de jogo usando as notas
 
 ## Como a sincronização funciona
 

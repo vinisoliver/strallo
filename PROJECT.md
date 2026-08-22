@@ -15,6 +15,7 @@ primária. Nome todo minúsculo: **strallo** (o app se apresenta como
 | **Fluxo Jogo** — escolher modo, configurar, jogar, resposta, resultado | pronto | pronto |
 | **Coleções** — agrupar cartões em pastas | pronto | pronto |
 | **Conta e nuvem** — login Google, sincronização | pronto | pronto, **sem credenciais** |
+| **Notas** — até 6 linhas curtas presas ao cartão | pronto | pronto |
 
 Os quatro fluxos estão em pé. A nuvem só entra em operação quando o `.env`
 tiver as três variáveis — ver **Nuvem** abaixo. Sem elas o app roda igual,
@@ -47,7 +48,9 @@ A skill é `/design` (o `<skill>` acima é o diretório-base dela).
 
 **Marca** — `Logo.dc.html`
 
-**Fluxo Início** — `Main` (grade) · `EditCard`
+**Fluxo Início** — `Main` (grade) · `EditCardTop` (topo do formulário) ·
+`EditCard` (coleção e notas) · `NoteEditor` (modal) · `NoteMenu` (menu e
+arraste)
 
 **Fluxo Jogo** — `GameSelect` · `GameConfig` (tempo) ·
 `GameConfigCount` (quantidade) · `Playing` · `AnswerCorrect` ·
@@ -105,6 +108,7 @@ src/
   db/cards.ts          CRUD de cartões, repetidas e sorteio do baralho
   db/collections.ts    CRUD da árvore, mover, excluir em cascata
   db/library.ts        a listagem única de coleções + cartões da grade
+  db/notes.ts          as notas do cartão, gravadas em lote
   db/sessions.ts       rodadas concluídas (o número "práticas")
   db/account.ts        os três totais da tela de Conta
   cloud/config.ts      credenciais do ambiente e o `cloudConfigured`
@@ -121,6 +125,8 @@ src/
   utils/text.ts        `normalize` (sem acento) e `foldCase` (com acento)
   utils/grid.ts        monta a grade e resolve o rail alfabético
   utils/collections.ts contagens da subárvore, caminho, guarda de ciclo
+  utils/notes.ts       sublinhado e realce da referência nas notas
+  utils/breadcrumb.ts  o que cabe do caminho da árvore
 design/                artboards da canvas
 supabase/schema.sql    o que rodar no SQL Editor do Supabase
 scripts/               geração de ícones e capturas
@@ -372,6 +378,59 @@ O login nativo do Google **não funciona no Expo Go** — precisa de um build
 próprio. E o Android exige que a SHA-1 do keystore usado na build esteja
 registrada num client OAuth de Android no Google Cloud; a da EAS sai de
 `npx --yes --package eas-cli eas credentials`.
+
+---
+
+## Notas — como ficou
+
+Seis linhas de até 120 caracteres presas ao cartão, reordenáveis. O nome
+saiu de uma decisão do Vinícius: o app guarda repertório de inglês **e**
+qualquer outra coisa, então precisava de um substantivo contável que
+cobrisse tanto uma frase de exemplo quanto um dado seco. "Frases" e
+"Exemplos" excluem o dado; "Fatos" exclui a frase.
+
+### Onde o sublinhado mora
+
+`notes.marks` guarda pares `[início, fim)` em JSON, e **não** marcação
+dentro do texto. Assim `text` continua sendo exatamente o que a pessoa
+escreveu, e segue servindo para busca e para o futuro modo de jogo sem
+precisar ser desembrulhado antes.
+
+A referência do cartão **não** é guardada como marcação: onde ela acende
+é resolvido na hora de desenhar, por `buildSegments`. Renomear o cartão
+reacende todas as notas sozinho, sem reescrever nada no banco.
+
+As duas formatações se cruzam — dá para sublinhar um trecho que contém a
+referência —, então os limites dos dois conjuntos entram no mesmo corte em
+vez de um ser aplicado depois do outro.
+
+A busca da referência ignora caixa mas **respeita acento**, a mesma regra
+que decide cartão repetido, e só casa palavra inteira: sem isso "arte"
+acenderia dentro de "quarteirão".
+
+### Quando as notas são gravadas
+
+Junto com o cartão, no Salvar — nunca no momento em que o bloco é escrito.
+Um cartão novo só tem `id` depois de criado, e descartar as alterações
+precisa descartar as notas junto. A reconciliação em `saveNotes` é por
+`uuid`, não por posição, para reordenar não confundir uma nota com outra.
+
+### Duas armadilhas do arraste
+
+**Um `PanResponder` por posição**, e não um só: ele precisa saber qual
+bloco o dedo pegou. Espalhar `panHandlers` e declarar
+`onStartShouldSetResponder` na mesma `View` **não funciona** — a segunda
+sobrescreve a que veio no espalhamento, e o arraste nunca começa.
+
+**Os callbacks leem props por ref.** Criados uma vez, chamariam para sempre
+a versão da primeira renderização.
+
+### O que ficou diferente da canvas
+
+A artboard mostra a formatação dentro do próprio campo de texto. Um
+`TextInput` do React Native não desenha texto formatado enquanto se digita,
+então o campo ficou cru e uma **prévia** abaixo mostra como a nota vai
+ficar. Sai mais honesto que fingir, e dá para conferir sem sair e voltar.
 
 ---
 
