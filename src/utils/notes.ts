@@ -14,13 +14,16 @@ export const MAX_LENGTH = 120;
  */
 export type Mark = [number, number];
 
+/** O que o app reconheceu sozinho neste pedaço. */
+export type Highlight = 'reference' | 'meaning' | null;
+
 /** Um pedaço de texto com formatação uniforme. */
 export type Segment = {
   text: string;
   /** Sublinhado à mão pela pessoa. */
   underlined: boolean;
-  /** É a referência do cartão aparecendo aqui. */
-  reference: boolean;
+  /** Reconhecido como a referência ou como o significado do cartão. */
+  highlight: Highlight;
 };
 
 /**
@@ -62,7 +65,31 @@ export function normalizeMarks(marks: Mark[], length: number): Mark[] {
  * "quarteirão".
  */
 export function findReference(text: string, reference: string): Mark[] {
-  const needle = reference.trim().toLowerCase();
+  return findTerm(text, reference);
+}
+
+/**
+ * As partes do significado que valem como aparição dele.
+ *
+ * Um significado costuma ser "Coragem — a capacidade de enfrentar o medo", e
+ * essa frase inteira jamais aparece dentro de uma nota. O que aparece é
+ * "Coragem". Por isso a quebra usa os mesmos separadores que o jogo aceita
+ * como resposta certa (ver `game/answer.ts`): o que conta ali como resposta é
+ * o que conta aqui como aparição.
+ *
+ * Pedaços de uma letra ficam de fora — acenderiam em toda parte.
+ */
+export function meaningTerms(meaning: string): string[] {
+  const parts = meaning
+    .split(/\s[-—–]\s|[,;/]/)
+    .map((part) => part.trim())
+    .filter((part) => part.length > 1);
+
+  return [...new Set(parts)];
+}
+
+function findTerm(text: string, term: string): Mark[] {
+  const needle = term.trim().toLowerCase();
   if (needle.length === 0) return [];
 
   const haystack = text.toLowerCase();
@@ -95,27 +122,34 @@ function isWordChar(char: string | undefined): boolean {
 /**
  * Quebra o texto nos pedaços que a tela desenha.
  *
- * As duas formatações são independentes e podem se cruzar: dá para sublinhar
- * um trecho que contém a referência, e então o pedaço do meio é sublinhado
- * **e** amarelo ao mesmo tempo. Por isso os limites dos dois conjuntos entram
- * no mesmo corte, em vez de um ser aplicado depois do outro.
+ * São três formatações que se cruzam: o sublinhado feito à mão, a referência
+ * do cartão e o significado dele. Dá para sublinhar um trecho que contém a
+ * referência, e aí o pedaço do meio tem as duas coisas. Por isso os limites
+ * dos três conjuntos entram no mesmo corte, em vez de um ser aplicado depois
+ * do outro.
  *
- * A referência é resolvida aqui, na hora de desenhar, e não guardada junto
- * com a nota. Assim renomear o cartão reacende as notas sozinho, sem
- * precisar reescrever nada no banco.
+ * Referência e significado são resolvidos aqui, na hora de desenhar, e não
+ * guardados junto com a nota. Assim editar o cartão reacende as notas
+ * sozinho, sem precisar reescrever nada no banco.
  */
 export function buildSegments(
   text: string,
   marks: Mark[],
   reference: string,
+  meaning = '',
 ): Segment[] {
   if (text.length === 0) return [];
 
   const underlines = normalizeMarks(marks, text.length);
   const references = findReference(text, reference);
 
+  const meanings: Mark[] = [];
+  for (const term of meaningTerms(meaning)) {
+    meanings.push(...findTerm(text, term));
+  }
+
   const cuts = new Set<number>([0, text.length]);
-  for (const [start, end] of [...underlines, ...references]) {
+  for (const [start, end] of [...underlines, ...references, ...meanings]) {
     cuts.add(start);
     cuts.add(end);
   }
@@ -128,10 +162,19 @@ export function buildSegments(
     const end = points[i + 1];
     if (end <= start) continue;
 
+    // A referência ganha do significado onde os dois caem no mesmo lugar:
+    // um cartão cuja referência repete uma palavra do significado deve
+    // acender como referência, que é o que se está aprendendo.
+    const highlight: Highlight = covers(references, start)
+      ? 'reference'
+      : covers(meanings, start)
+        ? 'meaning'
+        : null;
+
     segments.push({
       text: text.slice(start, end),
       underlined: covers(underlines, start),
-      reference: covers(references, start),
+      highlight,
     });
   }
 

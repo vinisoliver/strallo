@@ -389,6 +389,21 @@ qualquer outra coisa, então precisava de um substantivo contável que
 cobrisse tanto uma frase de exemplo quanto um dado seco. "Frases" e
 "Exemplos" excluem o dado; "Fatos" exclui a frase.
 
+### O que acende sozinho
+
+Dois realces, em cores diferentes: a **referência** no amarelo da marca, e
+o **significado** no verde de resposta certa do jogo. O verde não é
+enfeite — no jogo o significado *é* a resposta, e ver a mesma cor nos dois
+lugares liga as telas sem legenda.
+
+Do significado, o que acende são os pedaços que o jogo aceitaria como
+resposta: "Coragem — a capacidade de enfrentar o medo" acende em
+"Coragem", porque a frase inteira jamais apareceria dentro de uma nota. A
+quebra usa os mesmos separadores de `game/answer.ts`.
+
+Onde os dois caem no mesmo lugar, a referência ganha — é o que se está
+aprendendo.
+
 ### Onde o sublinhado mora
 
 `notes.marks` guarda pares `[início, fim)` em JSON, e **não** marcação
@@ -425,12 +440,19 @@ sobrescreve a que veio no espalhamento, e o arraste nunca começa.
 **Os callbacks leem props por ref.** Criados uma vez, chamariam para sempre
 a versão da primeira renderização.
 
-### O que ficou diferente da canvas
+### Formatação dentro do campo
 
-A artboard mostra a formatação dentro do próprio campo de texto. Um
-`TextInput` do React Native não desenha texto formatado enquanto se digita,
-então o campo ficou cru e uma **prévia** abaixo mostra como a nota vai
-ficar. Sai mais honesto que fingir, e dá para conferir sem sair e voltar.
+O `TextInput` aceita `Text` aninhados como **filhos**, e é assim que o
+sublinhado e os realces aparecem enquanto se digita, como a artboard
+mostra. O preço está numa invariante do React Native: `value` e filhos não
+podem coexistir (`TextInput.js`, "Cannot specify both value and
+children"). Os filhos passam a ser o conteúdo; quem guarda o texto é o
+estado do componente, e a cada tecla os filhos são refeitos.
+
+Isto **nunca rodou num aparelho**. A técnica é a mesma que apps de chat
+usam para destacar menções, mas re-render de filhos a cada tecla tem
+histórico de pular o cursor no Android. Se isso aparecer, o recuo é voltar
+ao campo cru com uma prévia abaixo — foi assim na primeira versão.
 
 ---
 

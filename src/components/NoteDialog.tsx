@@ -9,7 +9,7 @@ import {
   View,
 } from 'react-native';
 
-import { NoteText } from '@/components/NoteText';
+import { noteSpans } from '@/components/NoteText';
 import { StarIcon, UnderlineIcon } from '@/components/icons';
 import { alpha, colors, font, layout, radius } from '@/theme';
 import {
@@ -21,8 +21,10 @@ import {
 
 type Props = {
   visible: boolean;
-  /** A referência do cartão, para a prévia acender igual à lista. */
+  /** A referência do cartão, que acende dentro do campo. */
   reference: string;
+  /** O significado do cartão, que acende em verde onde for escrito. */
+  meaning: string;
   /** Preenchidos ao editar; vazios ao criar. */
   initialText?: string;
   initialMarks?: Mark[];
@@ -33,18 +35,18 @@ type Props = {
 type Selection = { start: number; end: number };
 
 /**
- * Escreve ou edita uma nota.
+ * Escreve ou edita uma nota, já formatada enquanto se digita.
  *
- * **A prévia existe por limitação do TextInput.** Um campo editável do React
- * Native não desenha texto formatado enquanto se digita — o que a artboard
- * mostra (referência acesa e sublinhado dentro do próprio campo) não é
- * possível com um campo nativo. Então o campo fica cru e a prévia, logo
- * abaixo, mostra como a nota vai ficar. Sai mais honesto que fingir: dá para
- * conferir o resultado sem precisar sair e voltar.
+ * O `TextInput` aceita `Text` aninhados como **filhos**, e é assim que o
+ * sublinhado e os realces aparecem dentro do próprio campo. O preço é que
+ * `value` deixa de poder ser usado: o React Native recusa os dois juntos, e
+ * os filhos passam a ser o conteúdo. Quem guarda o texto é o estado daqui, e
+ * a cada tecla os filhos são refeitos.
  */
 export function NoteDialog({
   visible,
   reference,
+  meaning,
   initialText = '',
   initialMarks = [],
   onCancel,
@@ -105,7 +107,6 @@ export function NoteDialog({
 
             <TextInput
               ref={input}
-              value={text}
               onChangeText={change}
               onSelectionChange={(event) =>
                 setSelection(event.nativeEvent.selection)
@@ -116,7 +117,9 @@ export function NoteDialog({
               placeholder="Uma frase, um dado, um lembrete…"
               placeholderTextColor={colors.disabledText}
               style={styles.input}
-            />
+            >
+              {noteSpans({ text, marks, reference, meaning })}
+            </TextInput>
 
             <View style={styles.tools}>
               <Pressable
@@ -152,19 +155,10 @@ export function NoteDialog({
               </Text>
             </View>
 
-            {trimmed.length > 0 ? (
-              <View style={styles.preview}>
-                <Text style={styles.previewLabel}>Como vai ficar</Text>
-                <NoteText text={text} marks={marks} reference={reference} />
-              </View>
-            ) : null}
-
             <View style={styles.hint}>
               <StarIcon size={16} />
               <Text style={styles.hintText}>
-                {selecting
-                  ? 'O trecho escolhido fica branco com a linha amarela.'
-                  : 'Selecione um trecho para poder sublinhar. A referência do cartão acende sozinha.'}
+                A referência do cartão ficará destacada.
               </Text>
             </View>
 
@@ -337,22 +331,6 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
   counterMax: { fontFamily: font.bodyBold, color: colors.disabledText },
-
-  preview: {
-    backgroundColor: colors.input,
-    borderRadius: 12,
-    paddingHorizontal: 13,
-    paddingVertical: 12,
-    marginBottom: 14,
-  },
-  previewLabel: {
-    fontFamily: font.bodyBlack,
-    fontSize: 11,
-    letterSpacing: 0.8,
-    textTransform: 'uppercase',
-    color: colors.disabledText,
-    marginBottom: 6,
-  },
 
   hint: {
     flexDirection: 'row',

@@ -26,6 +26,8 @@ type Props = {
   notes: Note[];
   /** A referência do cartão, que acende dentro das notas. */
   reference: string;
+  /** O significado do cartão, que acende em verde onde for escrito. */
+  meaning: string;
   onAdd: () => void;
   onEdit: (index: number) => void;
   onRemove: (index: number) => void;
@@ -48,6 +50,7 @@ const FALLBACK_HEIGHT = 52;
 export function NoteList({
   notes,
   reference,
+  meaning,
   onAdd,
   onEdit,
   onRemove,
@@ -199,6 +202,7 @@ export function NoteList({
                 text={note.text}
                 marks={note.marks}
                 reference={reference}
+                meaning={meaning}
               />
             </View>
 

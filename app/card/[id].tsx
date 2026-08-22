@@ -351,6 +351,7 @@ export default function EditCardScreen() {
           <NoteList
             notes={notes}
             reference={trimmed}
+            meaning={meaning.trim()}
             onAdd={() => setEditingNote('new')}
             onEdit={setEditingNote}
             onRemove={(at) =>
@@ -414,6 +415,7 @@ export default function EditCardScreen() {
       <NoteDialog
         visible={editingNote !== null}
         reference={trimmed}
+        meaning={meaning.trim()}
         initialText={
           typeof editingNote === 'number' ? notes[editingNote]?.text : ''
         }
