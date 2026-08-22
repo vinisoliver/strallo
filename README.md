@@ -66,8 +66,7 @@ o Google acrescenta uma **cópia na nuvem** que se reconcilia entre aparelhos �
 - ⬜ Responder no jogo com o microfone
 <br><br>
 
-- ✅ Notas do cartão: até seis linhas de até 120 caracteres, reordenáveis
-- ✅ Sublinhado nas notas, com a referência do cartão acendendo sozinha
+- ✅ Notas do cartão
 - ⬜ Modo de jogo usando as notas
 
 ## Como a sincronização funciona
@@ -122,13 +121,21 @@ As telas foram desenhadas antes de codadas. Os arquivos-fonte estão em
 
 <img src="docs/screens/criar-categoria.png" width="160" alt="Criar coleção">
 &nbsp;
-<img src="docs/screens/editar.png" width="160" alt="Editar cartão">
-&nbsp;
 <img src="docs/screens/mover-para.png" width="160" alt="Mover para coleção">
+&nbsp;
+<img src="docs/screens/multipla-selecao.png" width="160" alt="Seleção múltipla">
 
 <br><br>
 
-<img src="docs/screens/multipla-selecao.png" width="160" alt="Seleção múltipla">
+<img src="docs/screens/editar.png" width="160" alt="Editar cartão">
+&nbsp;
+<img src="docs/screens/editar-notas.png" width="160" alt="Coleção e notas do cartão">
+&nbsp;
+<img src="docs/screens/nova-nota.png" width="160" alt="Escrever uma nota">
+
+<br><br>
+
+<img src="docs/screens/nota-menu.png" width="160" alt="Menu e ordem da nota">
 &nbsp;
 <img src="docs/screens/modal-descartar.png" width="160" alt="Confirmar exclusão">
 &nbsp;
