@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import {
   Animated,
+  BackHandler,
   Dimensions,
   Easing,
   KeyboardAvoidingView,
@@ -169,6 +170,30 @@ export default function PlayScreen() {
   function confirmExit() {
     setAskingExit(true);
   }
+
+  /**
+   * O voltar do aparelho pergunta o mesmo que o X da tela.
+   *
+   * Sair no meio joga fora a rodada — ela só é registrada quando termina —,
+   * então o caminho de saída precisa ser o mesmo pelos dois botões.
+   */
+  useFocusEffect(
+    useCallback(() => {
+      const subscription = BackHandler.addEventListener(
+        'hardwareBackPress',
+        () => {
+          if (askingExit) {
+            setAskingExit(false);
+            return true;
+          }
+          setAskingExit(true);
+          return true;
+        },
+      );
+
+      return () => subscription.remove();
+    }, [askingExit]),
+  );
 
   const progress =
     mode === 'count' && deck.length > 0 ? answered / deck.length : 0;

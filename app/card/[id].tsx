@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import {
   Alert,
+  BackHandler,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -131,6 +132,32 @@ export default function EditCardScreen() {
     }
     router.back();
   }, [isDirty]);
+
+  /**
+   * O voltar do aparelho tem de perguntar o mesmo que o voltar da tela.
+   *
+   * Sem isto, o gesto do sistema saía direto e levava junto tudo o que estava
+   * digitado — inclusive as notas, que só são gravadas no Salvar. O `true`
+   * diz ao sistema que o toque já foi atendido aqui.
+   */
+  useFocusEffect(
+    useCallback(() => {
+      const subscription = BackHandler.addEventListener(
+        'hardwareBackPress',
+        () => {
+          // Com a confirmação aberta, voltar é fechá-la — não abrir outra.
+          if (askingDiscard) {
+            setAskingDiscard(false);
+            return true;
+          }
+          handleBack();
+          return true;
+        },
+      );
+
+      return () => subscription.remove();
+    }, [askingDiscard, handleBack]),
+  );
 
   const trimmed = reference.trim();
   const trimmedMeaning = meaning.trim();
