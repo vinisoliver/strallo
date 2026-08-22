@@ -1,6 +1,69 @@
 {
   "artboards": [
     {
+      "file": "CollectionsHome.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "1 · Início com coleções",
+      "page": "colecoes"
+    },
+    {
+      "file": "SelectMode.dc.html",
+      "x": 470,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "2 · Seleção múltipla",
+      "page": "colecoes"
+    },
+    {
+      "file": "CreateCollection.dc.html",
+      "x": 940,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "3 · Criar coleção",
+      "page": "colecoes"
+    },
+    {
+      "file": "MoveToCollection.dc.html",
+      "x": 1410,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "4a · Mover (caminho)",
+      "page": "colecoes"
+    },
+    {
+      "file": "InsideCollection.dc.html",
+      "x": 1876,
+      "y": 7,
+      "w": 390,
+      "h": 844,
+      "title": "5 · Dentro da coleção",
+      "page": "colecoes"
+    },
+    {
+      "file": "Account.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "1 · Conta sem login",
+      "page": "conta"
+    },
+    {
+      "file": "AccountSynced.dc.html",
+      "x": 470,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "2 · Conta sincronizada",
+      "page": "conta"
+    },
+    {
       "file": "Main.dc.html",
       "x": 0,
       "y": 0,
@@ -10,12 +73,39 @@
       "page": "inicio"
     },
     {
-      "file": "EditCard.dc.html",
+      "file": "EditCardTop.dc.html",
       "x": 940,
       "y": 0,
       "w": 390,
       "h": 844,
-      "title": "3 · Editar card",
+      "title": "3a · Editar card (topo)",
+      "page": "inicio"
+    },
+    {
+      "file": "EditCard.dc.html",
+      "x": 1410,
+      "y": 2,
+      "w": 390,
+      "h": 844,
+      "title": "3b · Editar card (coleção e notas)",
+      "page": "inicio"
+    },
+    {
+      "file": "NoteEditor.dc.html",
+      "x": 1880,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "4 · Nova nota",
+      "page": "inicio"
+    },
+    {
+      "file": "NoteMenu.dc.html",
+      "x": 2350,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "5 · Menu e ordem da nota",
       "page": "inicio"
     },
     {
@@ -91,51 +181,6 @@
       "page": "jogo"
     },
     {
-      "file": "CollectionsHome.dc.html",
-      "x": 0,
-      "y": 0,
-      "w": 390,
-      "h": 844,
-      "title": "1 · Início com coleções",
-      "page": "colecoes"
-    },
-    {
-      "file": "SelectMode.dc.html",
-      "x": 470,
-      "y": 0,
-      "w": 390,
-      "h": 844,
-      "title": "2 · Seleção múltipla",
-      "page": "colecoes"
-    },
-    {
-      "file": "CreateCollection.dc.html",
-      "x": 940,
-      "y": 0,
-      "w": 390,
-      "h": 844,
-      "title": "3 · Criar coleção",
-      "page": "colecoes"
-    },
-    {
-      "file": "MoveToCollection.dc.html",
-      "x": 1410,
-      "y": 0,
-      "w": 390,
-      "h": 844,
-      "title": "4a · Mover (caminho)",
-      "page": "colecoes"
-    },
-    {
-      "file": "InsideCollection.dc.html",
-      "x": 1876,
-      "y": 7,
-      "w": 390,
-      "h": 844,
-      "title": "5 · Dentro da coleção",
-      "page": "colecoes"
-    },
-    {
       "file": "Logo.dc.html",
       "x": 0,
       "y": 0,
@@ -143,29 +188,11 @@
       "h": 520,
       "title": "Lampi · Marca",
       "page": "marca"
-    },
-    {
-      "file": "Account.dc.html",
-      "x": 0,
-      "y": 0,
-      "w": 390,
-      "h": 844,
-      "title": "1 · Conta sem login",
-      "page": "conta"
-    },
-    {
-      "file": "AccountSynced.dc.html",
-      "x": 470,
-      "y": 0,
-      "w": 390,
-      "h": 844,
-      "title": "2 · Conta sincronizada",
-      "page": "conta"
     }
   ],
   "launch": {
     "view": "canvas",
-    "page": "conta"
+    "page": "inicio"
   },
   "pages": [
     {

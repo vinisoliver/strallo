@@ -25,7 +25,10 @@ const OUT = join(ROOT, 'docs', 'screens');
 /** Artboard -> nome do arquivo gerado. */
 const SCREENS = [
   ['Main.dc.html', 'inicio.png'],
-  ['EditCard.dc.html', 'editar.png'],
+  ['EditCardTop.dc.html', 'editar.png'],
+  ['EditCard.dc.html', 'editar-notas.png'],
+  ['NoteEditor.dc.html', 'nova-nota.png'],
+  ['NoteMenu.dc.html', 'nota-menu.png'],
 
   ['CollectionsHome.dc.html', 'inicio-categorias.png'],
   ['SelectMode.dc.html', 'multipla-selecao.png'],

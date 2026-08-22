@@ -1,0 +1,88 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&amp;family=Nunito:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; scrollbar-width:none; }
+    *::-webkit-scrollbar { display:none; }
+    body { margin:0; font-family:'Nunito',system-ui,sans-serif; color:#f1f7fb; -webkit-font-smoothing:antialiased; }
+    .phone { width:390px; height:844px; background:#131f24; position:relative; overflow:hidden; display:flex; flex-direction:column; }
+    .display { font-family:'Baloo 2','Nunito',system-ui,sans-serif; }
+    .label { font-size:12px; font-weight:800; letter-spacing:1.2px; text-transform:uppercase; color:#7d929c; margin-bottom:8px; }
+  </style>
+</helmet>
+
+<div class="phone">
+
+  <!-- Header -->
+  <div style="display:flex; align-items:center; justify-content:space-between; padding:34px 18px 12px 18px;">
+    <button style="width:42px; height:42px; border-radius:12px; background:#1f2c33; border:none; display:flex; align-items:center; justify-content:center; cursor:pointer;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="#7d929c" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+    </button>
+    <h1 class="display" style="margin:0; font-size:20px; font-weight:800; color:#f1f7fb;">Editar cartão</h1>
+    <div style="width:42px;"></div>
+  </div>
+
+  <!-- Amostra do cartão: mostra na hora como ele vai ficar na grade -->
+  <div style="padding:14px 18px 4px 18px;">
+    <div style="height:130px; border:2px solid #37464f; border-bottom-width:4px; border-radius:20px; background:#1f2c33; display:flex; align-items:center; justify-content:center; position:relative;">
+      <span style="position:absolute; top:12px; left:14px; font-size:12px; font-weight:800; color:#ffc800;">C</span>
+      <span style="font-weight:800; font-size:30px; color:#f1f7fb;">Courage</span>
+    </div>
+  </div>
+
+  <!-- Form -->
+  <div style="flex:1; padding:20px 18px;">
+    <div style="margin-bottom:22px;">
+      <div class="label">Referência</div>
+      <div style="border: 2px solid #ffc800; border-radius: 16px; padding: 15px 16px; font-size: 17px; font-weight: 700; color: #f1f7fb; background: #1c2a31; display: flex; align-items: center; justify-content: flex-start; gap: 4px">
+        <span>Courage</span>
+        <div style="width:2px; height:22px; background:#ffc800;"></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="label">Significado</div>
+      <div style="border:2px solid #37464f; border-radius:16px; padding:15px 16px; min-height:110px; font-size:16px; font-weight:600; color:#dbe6ec; background:#1c2a31; line-height:1.5;">
+        Coragem — a capacidade de enfrentar o medo, a dor ou a dificuldade.
+      </div>
+      <div style="margin-top:8px; font-size:13px; font-weight:600; color:#7d929c; display:flex; align-items:center; gap:6px;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 3l2.2 5.6L20 9l-4.5 3.6L17 19l-5-3.2L7 19l1.5-6.4L4 9l5.8-.4L12 3z" stroke="#ffc800" stroke-width="1.8" stroke-linejoin="round"></path></svg>
+        <span>No jogo, o significado deve ser o mais preciso possível.</span>
+      </div>
+    </div>
+
+    <!-- Daqui para baixo o formulário continua rolando: Coleção e Notas,
+         desenhados na artboard seguinte. -->
+    <div style="margin-top:26px; display:flex; align-items:center; gap:10px; opacity:.5;">
+      <div style="flex:1; height:2px; background:#22303a;"></div>
+      <span style="font-size:11px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:#46565f;">rola para Coleção e Notas</span>
+      <div style="flex:1; height:2px; background:#22303a;"></div>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div style="padding:12px 18px 26px 18px; display:flex; gap:12px; border-top:2px solid #22303a;">
+    <button style="width:64px; height:56px; border-radius:16px; background:#1f2c33; border:2px solid #5a2b2b; border-bottom-width:4px; display:flex; align-items:center; justify-content:center; cursor:pointer; flex:none;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M5 7h14M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M7 7l1 13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1l1-13" stroke="#ff6b6b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+    </button>
+    <button style="flex:1; height:56px; border:none; border-radius:16px; background:#ffc800; box-shadow:0 4px 0 #c99a00; color:#2b2317; font-family:'Nunito',sans-serif; font-weight:800; font-size:17px; letter-spacing:.8px; text-transform:uppercase; cursor:pointer;">Salvar</button>
+  </div>
+
+</div>
+
+<script data-dc-script="" data-props="{}">
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</x-dc>
+</body>
+</html>
