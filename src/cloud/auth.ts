@@ -1,3 +1,4 @@
+import { TurboModuleRegistry } from 'react-native';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
 
 import { getClient } from '@/cloud/client';
@@ -37,14 +38,23 @@ let attempted = false;
  * rodar. Adiando a carga, quem não tem o módulo simplesmente fica sem login,
  * com o resto do app funcionando.
  *
- * A ausência é detectada tentando carregar, e não olhando o ambiente: um
- * build de desenvolvimento e o Expo Go se apresentam igual para
- * `Constants.executionEnvironment`, e o primeiro **tem** o módulo. Perguntar
- * ao próprio módulo é a única resposta que vale nos dois casos.
+ * A ausência é detectada perguntando ao registro de módulos nativos, e não
+ * olhando o ambiente: um build de desenvolvimento e o Expo Go se apresentam
+ * igual para `Constants.executionEnvironment`, e o primeiro **tem** o módulo.
+ *
+ * O `try/catch` em volta do import não bastaria, e a razão é do Metro: em
+ * `guardedLoadModule`, um módulo que estoura ao ser avaliado tem a exceção
+ * **capturada e entregue ao `ErrorUtils.reportFatalError`**, em vez de
+ * relançada. A promessa do import resolve como se nada tivesse acontecido, e
+ * o erro aparece direto na tela vermelha, longe de qualquer `catch`. Por isso
+ * a checagem tem de vir antes: o jeito de sobreviver é o módulo nunca chegar
+ * a ser avaliado.
  */
 async function google(): Promise<GoogleModule | null> {
   if (attempted) return cached;
   attempted = true;
+
+  if (!hasNativeModule()) return null;
 
   try {
     cached = await import('@react-native-google-signin/google-signin');
@@ -53,6 +63,19 @@ async function google(): Promise<GoogleModule | null> {
   }
 
   return cached;
+}
+
+/**
+ * O binário deste app tem o módulo nativo do Google?
+ *
+ * `TurboModuleRegistry.get` é o irmão sem estardalhaço do `getEnforcing`:
+ * devolve `null` em vez de estourar, e já consulta tanto os módulos da
+ * arquitetura nova quanto os antigos. É a mesma pergunta que o módulo do
+ * Google faz ao ser carregado — só que sem derrubar nada quando a resposta
+ * é não.
+ */
+function hasNativeModule(): boolean {
+  return TurboModuleRegistry.get('RNGoogleSignin') != null;
 }
 
 /** Se este aparelho consegue abrir o diálogo do Google. */

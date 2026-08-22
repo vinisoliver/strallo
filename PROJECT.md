@@ -490,6 +490,16 @@ linecap/linejoin round):
 
 ## Pendências e armadilhas conhecidas
 
+**`try/catch` não protege de um módulo nativo ausente.** O Metro, em
+`guardedLoadModule`, **captura** a exceção de um módulo que estoura ao ser
+avaliado e a entrega ao `ErrorUtils.reportFatalError` em vez de relançá-la:
+a promessa do `import()` resolve como se nada tivesse acontecido, e o erro
+aparece na tela vermelha longe de qualquer `catch`. A única defesa é o
+módulo nunca chegar a ser avaliado — em `cloud/auth.ts` isso é
+`TurboModuleRegistry.get('RNGoogleSignin')`, que devolve `null` em vez de
+estourar, consultado **antes** do import. Vale para qualquer módulo nativo
+que o app carregue sob demanda.
+
 **Texto centralizado alcança o canto do cartão.** O cartão é uma coluna
 com `alignItems: 'center'`, e nesse arranjo duas coisas surpreendem. A
 primeira: o filho é medido pela largura **natural** dele, não pela do pai,
