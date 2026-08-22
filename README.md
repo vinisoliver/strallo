@@ -113,7 +113,23 @@ As telas foram desenhadas antes de codadas. Os arquivos-fonte estão em
 
 <img src="docs/screens/inicio.png" width="160" alt="Início">
 &nbsp;
+<img src="docs/screens/inicio-categorias.png" width="160" alt="Com coleções">
+&nbsp;
+<img src="docs/screens/dentro-da-colecao.png" width="160" alt="Dentro da coleção">
+
+<br><br>
+
+<img src="docs/screens/criar-categoria.png" width="160" alt="Criar coleção">
+&nbsp;
 <img src="docs/screens/editar.png" width="160" alt="Editar cartão">
+&nbsp;
+<img src="docs/screens/mover-para.png" width="160" alt="Mover para coleção">
+
+<br><br>
+
+<img src="docs/screens/multipla-selecao.png" width="160" alt="Seleção múltipla">
+&nbsp;
+<img src="docs/screens/modal-descartar.png" width="160" alt="Confirmar exclusão">
 &nbsp;
 <img src="docs/screens/jogo-inicio.png" width="160" alt="Escolher modo">
 
@@ -133,11 +149,13 @@ As telas foram desenhadas antes de codadas. Os arquivos-fonte estão em
 &nbsp;
 <img src="docs/screens/jogo-resultado.png" width="160" alt="Resultado da rodada">
 
-</div>
+<br><br>
 
-As telas de coleções e de conta ainda não estão nesta galeria — as capturas
-saem das artboards por `node scripts/generate-screens.mjs`, que precisa de um
-Chromium funcional.
+<img src="docs/screens/conta-sem-login.png" width="160" alt="Conta (visitante)">
+&nbsp;
+<img src="docs/screens/conta-sincronizada.png" width="160" alt="Conta (sincronizada)">
+
+</div>
 
 ## Como rodar
 
