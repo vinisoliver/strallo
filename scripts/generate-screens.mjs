@@ -25,8 +25,14 @@ const OUT = join(ROOT, 'docs', 'screens');
 /** Artboard -> nome do arquivo gerado. */
 const SCREENS = [
   ['Main.dc.html', 'inicio.png'],
-  ['CardMenu.dc.html', 'menu.png'],
   ['EditCard.dc.html', 'editar.png'],
+
+  ['CollectionsHome.dc.html', 'colecoes-inicio.png'],
+  ['SelectMode.dc.html', 'colecoes-selecao.png'],
+  ['CreateCollection.dc.html', 'colecoes-criar.png'],
+  ['MoveToCollection.dc.html', 'colecoes-mover.png'],
+  ['InsideCollection.dc.html', 'colecoes-dentro.png'],
+
   ['GameSelect.dc.html', 'jogo-inicio.png'],
   ['GameConfig.dc.html', 'jogo-configuracoes.png'],
   ['GameConfigCount.dc.html', 'jogo-configuracoes-2.png'],
@@ -34,6 +40,10 @@ const SCREENS = [
   ['AnswerCorrect.dc.html', 'jogo-resposta-certa.png'],
   ['AnswerWrong.dc.html', 'jogo-resposta-errada.png'],
   ['Results.dc.html', 'jogo-resultado.png'],
+  ['ConfirmDialog.dc.html', 'confirmacao.png'],
+
+  ['Account.dc.html', 'conta-entrar.png'],
+  ['AccountSynced.dc.html', 'conta.png'],
 ];
 
 const CANDIDATES = [
