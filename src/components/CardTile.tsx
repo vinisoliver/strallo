@@ -61,7 +61,11 @@ export function CardTile({
     >
       {letter ? <Text style={styles.letter}>{letter}</Text> : null}
       {selecting ? <SelectionBox checked={!!selected} /> : null}
-      <Text style={styles.reference} numberOfLines={2}>
+      <Text
+        style={[styles.reference, styles.fill]}
+        numberOfLines={2}
+        ellipsizeMode="tail"
+      >
         {card.reference}
       </Text>
     </Pressable>
@@ -114,7 +118,11 @@ export function FolderTile({
           <SelectionBox checked={!!selected} />
           <View style={styles.folderRow}>
             <FolderIcon color={collection.color} />
-            <Text style={styles.folderName} numberOfLines={1}>
+            <Text
+              style={styles.folderName}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
               {collection.name}
             </Text>
           </View>
@@ -124,10 +132,18 @@ export function FolderTile({
           <View style={styles.folderMark}>
             <FolderIcon color={collection.color} />
           </View>
-          <Text style={styles.folderName} numberOfLines={2}>
+          <Text
+            style={[styles.folderName, styles.fill]}
+            numberOfLines={2}
+            ellipsizeMode="tail"
+          >
             {collection.name}
           </Text>
-          <Text style={styles.folderCount} numberOfLines={1}>
+          <Text
+            style={[styles.folderCount, styles.fill]}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
             {describeStats(stats)}
           </Text>
         </>
@@ -210,8 +226,25 @@ const styles = StyleSheet.create({
   folderRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'stretch',
     gap: 7,
-    maxWidth: '100%',
+  },
+  /**
+   * Prende o texto à largura do cartão.
+   *
+   * O cartão é uma coluna com `alignItems: 'center'`, e nesse arranjo o filho
+   * é medido pela largura natural dele, não pela do pai -- um nome comprido
+   * simplesmente transbordava a borda, e o `numberOfLines` nunca chegava a
+   * cortar nada porque não havia limite para estourar. Com a largura presa, o
+   * corte e as reticências acontecem onde deviam.
+   *
+   * É o mesmo mal-entendido do `flex: 1` do PrimaryButton, do outro lado: ali
+   * a propriedade agia na altura por estar numa coluna, aqui o `flexShrink`
+   * do nome só valia dentro da linha da seleção múltipla.
+   */
+  fill: {
+    alignSelf: 'stretch',
   },
   folderName: {
     fontFamily: font.bodyBlack,
@@ -224,6 +257,7 @@ const styles = StyleSheet.create({
     fontFamily: font.bodyBold,
     fontSize: 10,
     color: colors.textSecondary,
+    textAlign: 'center',
   },
   addTile: {
     height: layout.tileHeight,

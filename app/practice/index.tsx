@@ -278,6 +278,10 @@ const styles = StyleSheet.create({
     lineHeight: 36,
     color: colors.text,
     paddingHorizontal: 12,
+    // Mesma armadilha do cartão da grade: sem prender a largura, uma
+    // referência comprida passa por cima da borda do baralho.
+    alignSelf: 'stretch',
+    textAlign: 'center',
   },
   countRow: {
     flexDirection: 'row',
