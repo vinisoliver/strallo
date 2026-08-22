@@ -126,6 +126,7 @@ src/
   utils/grid.ts        monta a grade e resolve o rail alfabético
   utils/collections.ts contagens da subárvore, caminho, guarda de ciclo
   utils/notes.ts       sublinhado e realce da referência nas notas
+  utils/reorder.ts     em que posição um bloco arrastado cairia
   utils/breadcrumb.ts  o que cabe do caminho da árvore
 design/                artboards da canvas
 supabase/schema.sql    o que rodar no SQL Editor do Supabase
@@ -430,7 +431,27 @@ Um cartão novo só tem `id` depois de criado, e descartar as alterações
 precisa descartar as notas junto. A reconciliação em `saveNotes` é por
 `uuid`, não por posição, para reordenar não confundir uma nota com outra.
 
-### Duas armadilhas do arraste
+### O arraste
+
+**A lista não é reordenada durante o gesto.** A primeira versão trocava os
+itens a cada cruzamento de fronteira, e o bloco pulava de um lado para o
+outro: cada troca reposicionava o ponto de partida bem em cima do limite
+seguinte, e o menor tremor do dedo disparava a troca de volta. Agora os
+dados só mudam quando o dedo sai da tela; até lá o que se move são as
+transformações.
+
+**A régua é congelada no início** (`tops`). Durante o arraste as posições
+reais estão deslocadas pelas transformações, e medir de novo devolveria o
+layout já movido.
+
+**`slotAt` escolhe o centro mais próximo, não o centro ultrapassado.**
+Comparar com o centro da vizinha exigia percorrer um passo inteiro para
+trocar, quando meio passo basta — foi o segundo erro, e só apareceu porque
+a função virou `utils/reorder.ts` e ganhou teste.
+
+**A folga é vantagem para a posição atual**, não um limiar fixo: cria uma
+zona morta de 2 × `SLACK` em volta de cada fronteira. Com um limiar igual
+nos dois sentidos, parar em cima do limite volta a alternar.
 
 **Um `PanResponder` por posição**, e não um só: ele precisa saber qual
 bloco o dedo pegou. Espalhar `panHandlers` e declarar

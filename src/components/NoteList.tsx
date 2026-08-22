@@ -21,6 +21,7 @@ import {
 import type { Note } from '@/db/notes';
 import { alpha, colors, font, radius } from '@/theme';
 import { MAX_NOTES } from '@/utils/notes';
+import { slotAt } from '@/utils/reorder';
 
 type Props = {
   notes: Note[];
@@ -40,12 +41,23 @@ const GAP = 9;
 /** Altura de uma nota de uma linha, enquanto a real não foi medida. */
 const FALLBACK_HEIGHT = 52;
 
+/** Enquanto o dedo está na tela: de onde o bloco saiu e onde ele cairia. */
+type Drag = { from: number; target: number };
+
 /**
  * As notas do cartão, na ordem em que ficam.
  *
  * A alça fica à esquerda e o menu à direita de propósito: são as duas ações
  * que competem pelo mesmo toque, e separá-las nas pontas evita abrir o menu
  * quando se quis arrastar.
+ *
+ * **A lista não é reordenada durante o arraste.** A primeira versão trocava
+ * os itens de lugar a cada cruzamento de fronteira, e o resultado era o bloco
+ * pulando de um lado para o outro: cada troca reposicionava o ponto de
+ * partida bem em cima do limite seguinte, e o menor tremor do dedo disparava
+ * a troca de volta. Agora os dados só mudam quando o dedo sai da tela; até
+ * lá, o que se move são as transformações — o bloco segue o dedo exatamente,
+ * e os vizinhos abrem espaço.
  */
 export function NoteList({
   notes,
@@ -61,15 +73,17 @@ export function NoteList({
     top: number;
     right: number;
   } | null>(null);
-  const [dragging, setDragging] = useState<number | null>(null);
+  const [drag, setDrag] = useState<Drag | null>(null);
 
   const heights = useRef<number[]>([]);
+  /** Topo de cada posição, congelado quando o arraste começa. */
+  const tops = useRef<number[]>([]);
   const offset = useRef(new Animated.Value(0)).current;
 
-  // O arraste vive em refs porque o PanResponder é criado uma vez só: se
-  // lesse o estado, veria para sempre o valor da primeira renderização.
-  const index = useRef<number | null>(null);
-  const baseline = useRef(0);
+  // O gesto vive em refs porque os responders são criados uma vez só: se
+  // lessem o estado, veriam para sempre o da primeira renderização.
+  const from = useRef<number | null>(null);
+  const target = useRef(0);
   const order = useRef(notes);
   order.current = notes;
 
@@ -101,62 +115,77 @@ export function NoteList({
       onPanResponderGrant: () => grab(slot),
 
       onPanResponderMove: (_, gesture) => {
-        const current = index.current;
-        if (current === null) return;
+        const start = from.current;
+        if (start === null) return;
 
-        const dy = gesture.dy - baseline.current;
+        offset.setValue(gesture.dy);
 
-        // Passou de meia altura da vizinha: troca de lugar já, e desconta a
-        // altura dela do ponto de partida, para o bloco continuar exatamente
-        // sob o dedo em vez de dar um pulo.
-        if (dy < 0 && current > 0) {
-          const step = (heights.current[current - 1] ?? FALLBACK_HEIGHT) + GAP;
-          if (-dy > step / 2) {
-            reorder.current(current, current - 1);
-            swapHeights(heights.current, current, current - 1);
-            index.current = current - 1;
-            baseline.current -= step;
-            setDragging(current - 1);
-            offset.setValue(gesture.dy - baseline.current);
-            return;
-          }
+        // O meio do bloco arrastado, na régua congelada no início.
+        const middle = tops.current[start] + heightAt(start) / 2 + gesture.dy;
+        const next = slotAt(
+          middle,
+          tops.current,
+          heightAt,
+          order.current.length,
+          target.current,
+        );
+
+        if (next !== target.current) {
+          target.current = next;
+          setDrag({ from: start, target: next });
         }
-
-        if (dy > 0 && current < order.current.length - 1) {
-          const step = (heights.current[current + 1] ?? FALLBACK_HEIGHT) + GAP;
-          if (dy > step / 2) {
-            reorder.current(current, current + 1);
-            swapHeights(heights.current, current, current + 1);
-            index.current = current + 1;
-            baseline.current += step;
-            setDragging(current + 1);
-            offset.setValue(gesture.dy - baseline.current);
-            return;
-          }
-        }
-
-        offset.setValue(dy);
       },
 
-      onPanResponderRelease: () => stop(),
-      onPanResponderTerminate: () => stop(),
+      onPanResponderRelease: stop,
+      onPanResponderTerminate: stop,
     });
 
     return responders.current[slot];
   };
 
   function stop() {
-    index.current = null;
-    baseline.current = 0;
+    const start = from.current;
+    from.current = null;
     offset.setValue(0);
-    setDragging(null);
+    setDrag(null);
+
+    // A ordem só muda agora, uma vez, com o dedo já fora da tela.
+    if (start !== null && target.current !== start) {
+      reorder.current(start, target.current);
+    }
   }
 
+  const heightAt = (at: number) => heights.current[at] ?? FALLBACK_HEIGHT;
+
   const grab = (at: number) => {
-    index.current = at;
-    baseline.current = 0;
+    // Os topos são calculados uma vez, no começo: durante o arraste as
+    // posições reais estão deslocadas pelas transformações, e medir de novo
+    // devolveria o layout já movido.
+    let top = 0;
+    tops.current = order.current.map((_, i) => {
+      const value = top;
+      top += heightAt(i) + GAP;
+      return value;
+    });
+
+    from.current = at;
+    target.current = at;
     offset.setValue(0);
-    setDragging(at);
+    setDrag({ from: at, target: at });
+  };
+
+  /** Quanto cada vizinho anda para abrir espaço no lugar do arrastado. */
+  const shiftOf = (at: number): number => {
+    if (!drag || at === drag.from) return 0;
+
+    const room = heightAt(drag.from) + GAP;
+    if (drag.target > drag.from && at > drag.from && at <= drag.target) {
+      return -room;
+    }
+    if (drag.target < drag.from && at >= drag.target && at < drag.from) {
+      return room;
+    }
+    return 0;
   };
 
   const measure = (at: number) => (event: LayoutChangeEvent) => {
@@ -173,60 +202,64 @@ export function NoteList({
       </View>
 
       <View style={styles.list}>
-        {notes.map((note, at) => (
-          <Animated.View
-            key={note.uuid}
-            onLayout={measure(at)}
-            style={[
-              styles.note,
-              dragging === at && styles.noteDragging,
-              dragging === at && {
-                transform: [{ translateY: offset }],
-                zIndex: 2,
-              },
-            ]}
-          >
-            <View
-              {...responderFor(at).panHandlers}
-              accessibilityRole="adjustable"
-              accessibilityLabel={`Mudar a ordem da nota ${at + 1}`}
-              style={styles.grip}
-            >
-              <GripIcon
-                color={dragging === at ? colors.primary : colors.railIdle}
-              />
-            </View>
+        {notes.map((note, at) => {
+          const held = drag?.from === at;
 
-            <View style={styles.body}>
-              <NoteText
-                text={note.text}
-                marks={note.marks}
-                reference={reference}
-                meaning={meaning}
-              />
-            </View>
-
-            <Pressable
-              onPress={(event) =>
-                setMenu({
-                  index: at,
-                  top: event.nativeEvent.pageY + 14,
-                  right: 20,
-                })
-              }
-              accessibilityRole="button"
-              accessibilityLabel={`Opções da nota ${at + 1}`}
-              hitSlop={8}
-              style={({ pressed }) => [styles.more, pressed && styles.pressed]}
+          return (
+            <Animated.View
+              key={note.uuid}
+              onLayout={measure(at)}
+              style={[
+                styles.note,
+                held && styles.noteHeld,
+                held
+                  ? { transform: [{ translateY: offset }], zIndex: 2 }
+                  : { transform: [{ translateY: shiftOf(at) }] },
+              ]}
             >
-              <MoreIcon
-                color={
-                  menu?.index === at ? colors.primary : colors.textSecondary
+              <View
+                {...responderFor(at).panHandlers}
+                accessibilityRole="adjustable"
+                accessibilityLabel={`Mudar a ordem da nota ${at + 1}`}
+                style={styles.grip}
+              >
+                <GripIcon color={held ? colors.primary : colors.railIdle} />
+              </View>
+
+              <View style={styles.body}>
+                <NoteText
+                  text={note.text}
+                  marks={note.marks}
+                  reference={reference}
+                  meaning={meaning}
+                />
+              </View>
+
+              <Pressable
+                onPress={(event) =>
+                  setMenu({
+                    index: at,
+                    top: event.nativeEvent.pageY + 14,
+                    right: 20,
+                  })
                 }
-              />
-            </Pressable>
-          </Animated.View>
-        ))}
+                accessibilityRole="button"
+                accessibilityLabel={`Opções da nota ${at + 1}`}
+                hitSlop={8}
+                style={({ pressed }) => [
+                  styles.more,
+                  pressed && styles.pressed,
+                ]}
+              >
+                <MoreIcon
+                  color={
+                    menu?.index === at ? colors.primary : colors.textSecondary
+                  }
+                />
+              </Pressable>
+            </Animated.View>
+          );
+        })}
       </View>
 
       <Pressable
@@ -246,7 +279,7 @@ export function NoteList({
           color={full ? colors.disabledText : colors.primary}
         />
         <Text style={[styles.addLabel, full && styles.addLabelOff]}>
-          {full ? `Máximo de ${MAX_NOTES} notas` : 'Nova nota'}
+          {full ? `Limite de ${MAX_NOTES} notas atingido` : 'Nova nota'}
         </Text>
       </Pressable>
 
@@ -296,12 +329,6 @@ export function NoteList({
   );
 }
 
-function swapHeights(list: number[], a: number, b: number): void {
-  const held = list[a];
-  list[a] = list[b];
-  list[b] = held;
-}
-
 const styles = StyleSheet.create({
   head: {
     flexDirection: 'row',
@@ -335,7 +362,7 @@ const styles = StyleSheet.create({
     paddingRight: 8,
     paddingVertical: 11,
   },
-  noteDragging: {
+  noteHeld: {
     borderColor: colors.primary,
     elevation: 8,
     shadowColor: '#000',

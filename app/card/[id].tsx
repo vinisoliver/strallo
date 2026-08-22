@@ -318,7 +318,7 @@ export default function EditCardScreen() {
           <View style={styles.hint}>
             <StarIcon />
             <Text style={styles.hintText}>
-              No jogo, o significado deve ser o mais preciso possível.
+              No jogo, o significado escrito deve ser o mais parecido à este possível.
             </Text>
           </View>
         </View>
