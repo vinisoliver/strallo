@@ -431,16 +431,25 @@ linecap/linejoin round):
 
 ## Pendências e armadilhas conhecidas
 
-**Não commitado** (último commit: `d0fedb6`) — toda a implementação de
-coleções: `src/db/collections.ts`, `src/db/library.ts`,
-`src/utils/collections.ts`, `src/hooks/useLibrary.ts`,
-`src/hooks/useCollectionTree.ts`, os componentes novos (`Breadcrumb`,
-`CollectionDialog`, `CollectionPicker`, `GridTile`, `SelectionBar`,
-`SelectionBox`, `Toast`), a reescrita de `app/index.tsx` e o campo de
-coleção + regra de referência repetida em `app/card/[id].tsx`.
-`CardMenuOverlay` e `useCards` foram apagados — o menu de um cartão só
-virou seleção múltipla, e a listagem agora é de coleções + cartões
-juntos.
+**Texto centralizado alcança o canto do cartão.** O cartão é uma coluna
+com `alignItems: 'center'`, e nesse arranjo duas coisas surpreendem. A
+primeira: o filho é medido pela largura **natural** dele, não pela do pai,
+então um nome comprido transbordava a borda e o `numberOfLines` não
+cortava nada — não havia limite para estourar. A segunda: como o conteúdo
+é centralizado, ele cresce **para cima** também, e alcança a letra, o
+ícone da pasta ou a caixa de seleção, todos posicionados em cima. Por
+isso `CardTile` prende a largura com `alignSelf: 'stretch'`, fixa
+`lineHeight` (para a conta ser previsível) e limita as linhas: a pasta
+tem uma só, e o cartão cai para uma no modo de seleção. A aritmética está
+comentada no estilo `folder`.
+
+**O caminho da árvore encolhe pelo meio, e depende de medição.**
+`planCrumbs` em `utils/breadcrumb.ts` decide o que cabe; o componente
+mede os nomes numa linha invisível de 10000px porque estimar largura por
+número de letras erra muito numa fonte de largura variável. Enquanto
+faltar medida ele **não desenha nada** — um quadro em branco é melhor que
+um salto. Se um dia as larguras vierem zeradas, o plano conclui que tudo
+cabe e o comportamento volta a ser o antigo, sem quebrar.
 
 **Não há testes automatizados.** As consultas recursivas e a aritmética
 da árvore foram conferidas rodando o SQL num SQLite de verdade (via

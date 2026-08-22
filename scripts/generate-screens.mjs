@@ -27,11 +27,12 @@ const SCREENS = [
   ['Main.dc.html', 'inicio.png'],
   ['EditCard.dc.html', 'editar.png'],
 
-  ['CollectionsHome.dc.html', 'colecoes-inicio.png'],
-  ['SelectMode.dc.html', 'colecoes-selecao.png'],
-  ['CreateCollection.dc.html', 'colecoes-criar.png'],
-  ['MoveToCollection.dc.html', 'colecoes-mover.png'],
-  ['InsideCollection.dc.html', 'colecoes-dentro.png'],
+  ['CollectionsHome.dc.html', 'inicio-categorias.png'],
+  ['SelectMode.dc.html', 'multipla-selecao.png'],
+  ['CreateCollection.dc.html', 'criar-categoria.png'],
+  ['MoveToCollection.dc.html', 'mover-para.png'],
+  ['InsideCollection.dc.html', 'dentro-da-colecao.png'],
+  ['ConfirmDialog.dc.html', 'modal-descartar.png'],
 
   ['GameSelect.dc.html', 'jogo-inicio.png'],
   ['GameConfig.dc.html', 'jogo-configuracoes.png'],
@@ -40,10 +41,9 @@ const SCREENS = [
   ['AnswerCorrect.dc.html', 'jogo-resposta-certa.png'],
   ['AnswerWrong.dc.html', 'jogo-resposta-errada.png'],
   ['Results.dc.html', 'jogo-resultado.png'],
-  ['ConfirmDialog.dc.html', 'confirmacao.png'],
 
-  ['Account.dc.html', 'conta-entrar.png'],
-  ['AccountSynced.dc.html', 'conta.png'],
+  ['Account.dc.html', 'conta-sem-login.png'],
+  ['AccountSynced.dc.html', 'conta-sincronizada.png'],
 ];
 
 const CANDIDATES = [
