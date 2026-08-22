@@ -63,7 +63,7 @@ export function CardTile({
       {selecting ? <SelectionBox checked={!!selected} /> : null}
       <Text
         style={[styles.reference, styles.fill]}
-        numberOfLines={2}
+        numberOfLines={selecting ? 1 : 2}
         ellipsizeMode="tail"
       >
         {card.reference}
@@ -134,7 +134,7 @@ export function FolderTile({
           </View>
           <Text
             style={[styles.folderName, styles.fill]}
-            numberOfLines={2}
+            numberOfLines={1}
             ellipsizeMode="tail"
           >
             {collection.name}
@@ -191,8 +191,21 @@ const base = {
 
 const styles = StyleSheet.create({
   tile: base,
+  /**
+   * A pasta reserva o topo para o ícone do canto.
+   *
+   * A conta, com o cartão de 104: a caixa de conteúdo vai de 2+16 a 104-4-10,
+   * ou seja 72 de altura; o conteúdo mede 22 do nome + 4 do vão + 14 da
+   * contagem = 40, e centralizado começa em 34. O ícone ocupa de 11 a 31.
+   * Sobram 3 -- com os 10 originais de topo o conteúdo começava em 31 e
+   * encostava nele, que era o texto por cima do icone.
+   *
+   * É por isso que o nome da pasta é de uma linha só: a segunda somaria 22 e
+   * levaria o bloco de volta para debaixo do icone.
+   */
   folder: {
     ...base,
+    paddingTop: 16,
     gap: 4,
   },
   // A borda amarela some no cartão marcado — a de baixo é a cor da coleção,
@@ -215,6 +228,7 @@ const styles = StyleSheet.create({
   reference: {
     fontFamily: font.bodyBlack,
     fontSize: 19,
+    lineHeight: 23,
     color: colors.text,
     textAlign: 'center',
   },
@@ -249,6 +263,7 @@ const styles = StyleSheet.create({
   folderName: {
     fontFamily: font.bodyBlack,
     fontSize: 17,
+    lineHeight: 22,
     color: colors.text,
     textAlign: 'center',
     flexShrink: 1,
@@ -256,6 +271,7 @@ const styles = StyleSheet.create({
   folderCount: {
     fontFamily: font.bodyBold,
     fontSize: 10,
+    lineHeight: 14,
     color: colors.textSecondary,
     textAlign: 'center',
   },
